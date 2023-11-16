@@ -70,6 +70,10 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+    implementation("androidx.compose.material:material:1.5.4")
+    // Compose Extended Icon
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
+
     // Accompanist
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
@@ -77,7 +81,9 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("androidx.navigation:navigation-compose:2.7.5")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
 
     // Datastore
     implementation("androidx.datastore:datastore-core:1.0.0")

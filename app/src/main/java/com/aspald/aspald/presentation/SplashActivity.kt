@@ -50,6 +50,7 @@ class SplashActivity : ComponentActivity() {
             )
             delay(1000)
             startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            finish()
         })
         Box(
             modifier = Modifier
