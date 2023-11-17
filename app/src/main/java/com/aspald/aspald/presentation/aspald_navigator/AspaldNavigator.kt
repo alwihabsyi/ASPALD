@@ -1,5 +1,6 @@
 package com.aspald.aspald.presentation.aspald_navigator
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -37,16 +39,17 @@ fun AspaldNavigator() {
         mutableIntStateOf(0)
     }
     selectedItem = remember(key1 = backStackState) {
-        when(backStackState?.destination?.route) {
+        when (backStackState?.destination?.route) {
             Route.HomeScreen.route -> 0
             Route.ReportScreen.route -> 1
-            Route.ProfileScreen.route -> 2
+            Route.ProfileNavigator.route -> 2
             else -> 0
         }
     }
-    val isBottomBarVisible = remember(key1 = backStackState) {
-        backStackState?.destination?.route == Route.HomeScreen.route ||
-                backStackState?.destination?.route == Route.ProfileScreen.route
+    val isBottomBarVisible = when (backStackState?.destination?.route) {
+        Route.HomeScreen.route -> true
+        Route.ProfileNavigator.route -> true
+        else -> false
     }
     SetStatusBar(backStackState)
     SetNavigation(isBottomBarVisible, selectedItem, navController)
@@ -73,22 +76,7 @@ fun SetNavigation(
                 AspaldBottomNavigation(
                     items = bottomNavigationItems,
                     selected = selectedItem,
-                    onItemClicked = { index ->
-                        when (index) {
-                            0 -> navigateToTab(
-                                navController = navController,
-                                route = Route.HomeScreen.route
-                            )
-                            1 -> navigateToTab(
-                                navController = navController,
-                                route = Route.ReportScreen.route
-                            )
-                            2 -> navigateToTab(
-                                navController = navController,
-                                route = Route.ProfileScreen.route
-                            )
-                        }
-                    }
+                    onItemClicked = { onItemClicked(navController, it) }
                 )
             }
         }
@@ -105,20 +93,74 @@ fun SetNavigation(
             composable(route = Route.ReportScreen.route) {
 
             }
-            composable(route = Route.ProfileScreen.route) {
-                ProfileScreen()
+            composable(route = Route.ProfileNavigator.route) {
+                val context = LocalContext.current
+                ProfileScreen(
+                    navigate = { route ->
+                        if (route == "Logout") {
+                            Toast.makeText(context, route, Toast.LENGTH_SHORT).show()
+                            return@ProfileScreen
+                        }
+
+                        navigateProfile(navController, route)
+                    }
+                )
             }
             composable(route = Route.SearchScreen.route) {
+
+            }
+            composable(
+                route = Route.AccountScreen.route
+            ) {
+
+            }
+            composable(
+                route = Route.ProfileSettingScreen.route
+            ) {
+
+            }
+            composable(
+                route = Route.HistoryScreen.route
+            ) {
+
+            }
+            composable(
+                route = Route.SettingsScreen.route
+            ) {
+
+            }
+            composable(
+                route = Route.AboutScreen.route
+            ) {
 
             }
         }
     }
 }
 
+fun onItemClicked(navController: NavController, index: Int) {
+    when (index) {
+        0 -> navigateToTab(
+            navController = navController,
+            route = Route.HomeScreen.route
+        )
+
+        1 -> navigateToTab(
+            navController = navController,
+            route = Route.ReportScreen.route
+        )
+
+        2 -> navigateToTab(
+            navController = navController,
+            route = Route.ProfileNavigator.route
+        )
+    }
+}
+
 @Composable
 fun SetStatusBar(backStackState: NavBackStackEntry?) {
     val systemController = rememberSystemUiController()
-    val inProfile = backStackState?.destination?.route == Route.ProfileScreen.route
+    val inProfile = backStackState?.destination?.route == Route.ProfileNavigator.route
 
     SideEffect {
         systemController.setSystemBarsColor(
@@ -137,5 +179,15 @@ private fun navigateToTab(navController: NavController, route: String) {
             restoreState = true
             launchSingleTop = true
         }
+    }
+}
+
+private fun navigateProfile(navController: NavController, route: String) {
+    navController.navigate(route) {
+        popUpTo(Route.ProfileNavigator.route) {
+            saveState = true
+        }
+        restoreState = true
+        launchSingleTop = true
     }
 }

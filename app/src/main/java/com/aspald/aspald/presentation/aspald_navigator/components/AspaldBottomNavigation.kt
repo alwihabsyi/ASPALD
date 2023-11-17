@@ -16,7 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aspald.aspald.R
 import com.aspald.aspald.presentation.Dimens
 import com.aspald.aspald.presentation.Dimens.IconSize
 import com.aspald.aspald.ui.theme.AspaldOrange
@@ -58,7 +62,8 @@ fun AspaldBottomNavigation(
                             Text(
                                 text = item.text,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = AspaldYellow
+                                color = AspaldYellow,
+                                fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium))
                             )
                         }
                     }
