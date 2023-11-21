@@ -12,3 +12,4 @@ val Pink40 = Color(0xFF7D5260)
 
 val AspaldYellow = Color(0xFFF7C016)
 val AspaldOrange = Color(0xFFC87300)
+val AspaldWhite = Color(0xFFF8F8FA)

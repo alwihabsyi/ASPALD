@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -28,6 +27,10 @@ import com.aspald.aspald.presentation.aspald_navigator.components.BottomNavigati
 import com.aspald.aspald.presentation.home.HomeScreen
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.presentation.profile.ProfileScreen
+import com.aspald.aspald.presentation.profile.account.AccountScreen
+import com.aspald.aspald.presentation.profile.history.HistoryScreen
+import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
+import com.aspald.aspald.ui.theme.AspaldWhite
 import com.aspald.aspald.ui.theme.AspaldYellow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -109,20 +112,24 @@ fun SetNavigation(
             composable(route = Route.SearchScreen.route) {
 
             }
-            composable(
-                route = Route.AccountScreen.route
-            ) {
-
+            composable(route = Route.AccountScreen.route) {
+                AccountScreen(
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable(
                 route = Route.ProfileSettingScreen.route
             ) {
-
+                ProfileEditScreen (
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable(
                 route = Route.HistoryScreen.route
             ) {
-
+                HistoryScreen (
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable(
                 route = Route.SettingsScreen.route
@@ -164,7 +171,7 @@ fun SetStatusBar(backStackState: NavBackStackEntry?) {
 
     SideEffect {
         systemController.setSystemBarsColor(
-            color = if (inProfile) AspaldYellow else Color.Transparent,
+            color = if (inProfile) AspaldYellow else AspaldWhite,
             darkIcons = !inProfile
         )
     }
