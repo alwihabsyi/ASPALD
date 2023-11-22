@@ -1,4 +1,4 @@
-package com.aspald.aspald.presentation.aspald_navigator
+package com.aspald.aspald.presentation.navgraph
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,14 +22,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.aspald.aspald.R
-import com.aspald.aspald.presentation.aspald_navigator.components.AspaldBottomNavigation
-import com.aspald.aspald.presentation.aspald_navigator.components.BottomNavigationItem
 import com.aspald.aspald.presentation.home.HomeScreen
-import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.presentation.profile.ProfileScreen
 import com.aspald.aspald.presentation.profile.account.AccountScreen
 import com.aspald.aspald.presentation.profile.history.HistoryScreen
 import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
+import com.aspald.aspald.presentation.report.ReportScreen
 import com.aspald.aspald.ui.theme.AspaldWhite
 import com.aspald.aspald.ui.theme.AspaldYellow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -94,7 +92,9 @@ fun SetNavigation(
                 HomeScreen()
             }
             composable(route = Route.ReportScreen.route) {
-
+                ReportScreen (
+                    onBackClick = { navController.navigateUp() }
+                )
             }
             composable(route = Route.ProfileNavigator.route) {
                 val context = LocalContext.current

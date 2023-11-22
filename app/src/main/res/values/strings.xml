@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Aspald</string>
+    <string name="provide_information">Provide some information about this road.</string>
+    <string name="detail">Details</string>
+    <string name="pin_location_point">Pin location point</string>
+    <string name="road_photos">Road photos</string>
+    <string name="add_helpful_photos">Add helpful photos</string>
 </resources>

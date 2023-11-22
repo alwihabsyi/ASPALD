@@ -1,4 +1,4 @@
-package com.aspald.aspald.presentation.aspald_navigator.components
+package com.aspald.aspald.presentation.navgraph
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

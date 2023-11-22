@@ -58,7 +58,8 @@ fun HistoryCard(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = date, style = TextStyle.Default.copy(
+                    text = date,
+                    style = TextStyle.Default.copy(
                         fontFamily = FontFamily(
                             Font(
                                 R.font.poppins,

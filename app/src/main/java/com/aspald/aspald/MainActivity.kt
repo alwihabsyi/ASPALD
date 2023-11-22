@@ -7,7 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
-import com.aspald.aspald.presentation.aspald_navigator.AspaldNavigator
+import com.aspald.aspald.presentation.navgraph.AspaldNavigator
 import com.aspald.aspald.ui.theme.ASPALDTheme
 
 class MainActivity : ComponentActivity() {
