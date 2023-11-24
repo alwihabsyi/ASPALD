@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:name=".AspaldApplication"
         android:allowBackup="true"
@@ -13,6 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ASPALD"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDLrS_zXf1MuAIl4I7jDwrAyQegEgf7XZs" />
+
         <activity
             android:name=".presentation.SplashActivity"
             android:exported="true"

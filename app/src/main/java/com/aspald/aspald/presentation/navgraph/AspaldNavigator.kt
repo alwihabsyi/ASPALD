@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -22,6 +23,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.aspald.aspald.R
+import com.aspald.aspald.presentation.common.LoadingScreen
+import com.aspald.aspald.presentation.common.RequestPermissionScreen
 import com.aspald.aspald.presentation.home.HomeScreen
 import com.aspald.aspald.presentation.profile.ProfileScreen
 import com.aspald.aspald.presentation.profile.account.AccountScreen
@@ -30,10 +33,17 @@ import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
 import com.aspald.aspald.presentation.report.ReportScreen
 import com.aspald.aspald.ui.theme.AspaldWhite
 import com.aspald.aspald.ui.theme.AspaldYellow
+import com.aspald.aspald.utils.UiState
+import com.aspald.aspald.utils.centerOnLocation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun AspaldNavigator() {
+fun AspaldNavigator(
+    uiState: UiState,
+    onRequestPermission: () -> Unit
+) {
     val navController = rememberNavController()
     val backStackState = navController.currentBackStackEntryAsState().value
     var selectedItem by rememberSaveable {
@@ -53,7 +63,7 @@ fun AspaldNavigator() {
         else -> false
     }
     SetStatusBar(backStackState)
-    SetNavigation(isBottomBarVisible, selectedItem, navController)
+    SetNavigation(isBottomBarVisible, selectedItem, navController, uiState, onRequestPermission)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +71,9 @@ fun AspaldNavigator() {
 fun SetNavigation(
     bottomBarVisible: Boolean,
     selectedItem: Int,
-    navController: NavHostController
+    navController: NavHostController,
+    uiState: UiState,
+    onRequestPermission: () -> Unit
 ) {
     val bottomNavigationItems = remember {
         listOf(
@@ -89,7 +101,31 @@ fun SetNavigation(
             modifier = Modifier.padding(bottom = bottomPadding)
         ) {
             composable(route = Route.HomeScreen.route) {
-                HomeScreen()
+                with(uiState) {
+                    when(this) {
+                        UiState.Loading -> {
+                            LoadingScreen()
+                        }
+                        UiState.RevokedPermissions -> {
+                            RequestPermissionScreen(onRequestPermission)
+                        }
+                        is UiState.Success -> {
+                            val currentLoc = LatLng(
+                                location?.latitude ?: 0.0,
+                                location?.longitude ?: 0.0
+                            )
+                            val cameraState = rememberCameraPositionState()
+                            LaunchedEffect(key1 = currentLoc) {
+                                cameraState.centerOnLocation(currentLoc)
+                            }
+                            HomeScreen(
+                                currentPosition = LatLng(currentLoc.latitude, currentLoc.longitude),
+                                cameraState = cameraState,
+                                onSearch = { navigateToTab(navController, Route.SearchScreen.route) }
+                            )
+                        }
+                    }
+                }
             }
             composable(route = Route.ReportScreen.route) {
                 ReportScreen (
