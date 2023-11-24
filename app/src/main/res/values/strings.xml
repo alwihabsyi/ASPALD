@@ -5,4 +5,6 @@
     <string name="pin_location_point">Pin location point</string>
     <string name="road_photos">Road photos</string>
     <string name="add_helpful_photos">Add helpful photos</string>
+    <string name="loading_message">Make sure you have active internet connection and GPS turned on</string>
+    <string name="permission_needed">We need permissions to use this app</string>
 </resources>
