@@ -9,9 +9,9 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiServices {
-    @POST("signIn")
-    fun signIn(@Body request: SignInRequest) : Response<SignInResponse>
+    @POST("login")
+    suspend fun signIn(@Body request: SignInRequest) : Response<SignInResponse>
 
-    @POST("signUp")
+    @POST("register")
     fun signUp(@Body request: SignUpRequest) : Response<SignUpResponse>
 }
