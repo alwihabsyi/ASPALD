@@ -5,7 +5,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -14,7 +13,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aspald.aspald.R
 import com.aspald.aspald.presentation.components.ButtonComponent
-import com.aspald.aspald.presentation.components.MyTextField
+import com.aspald.aspald.presentation.components.MyEmailTextField
+import com.aspald.aspald.presentation.components.MyTypography
 import com.aspald.aspald.presentation.components.PasswordTextField
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.utils.UiState
@@ -40,7 +40,7 @@ fun SignInScreen(
         }
     }
 
-    MaterialTheme {
+    MaterialTheme(typography = MyTypography) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,7 +49,9 @@ fun SignInScreen(
         ) {
             Spacer(modifier = Modifier.height(160.dp))
 
-            Column(modifier = Modifier.align(Alignment.Start)) {
+            Column(
+                modifier = Modifier.align(Alignment.Start)
+            ) {
                 Text(
                     text = "Sign In",
                     style = MaterialTheme.typography.headlineLarge
@@ -63,7 +65,7 @@ fun SignInScreen(
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            MyTextField(
+            MyEmailTextField(
                 labelValue = "Email",
                 onValueChange = {
                     email = it
@@ -118,7 +120,9 @@ fun SignInScreen(
                     text = "Don’t have an account?",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                TextButton(onClick = { /* TODO: Navigate to Sign Up */ }) {
+                TextButton(onClick = {
+                    navController.navigate(Route.SignUpScreen.route)
+                }) {
                     Text(
                         text = "Sign up",
                         style = MaterialTheme.typography.bodyMedium,
