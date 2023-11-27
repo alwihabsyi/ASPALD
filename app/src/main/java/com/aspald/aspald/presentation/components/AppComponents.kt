@@ -327,10 +327,6 @@ fun PasswordTextField(
 
 private fun isPasswordValid(password: String): Boolean {
     val pattern = Pattern.compile(
-        "(?=.*[a-z])" +        // at least 1 lowercase character
-                "(?=.*[A-Z])" +        // at least 1 uppercase character
-                "(?=.*[@#$%^&+=])" +   // at least 1 special character
-                "(?=\\S+$)" +          // no whitespace allowed
                 ".{8,}"                // at least 8 characters
     )
     return pattern.matcher(password).matches()
