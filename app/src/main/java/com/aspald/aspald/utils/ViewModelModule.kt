@@ -2,9 +2,10 @@ package com.aspald.aspald.utils
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.aspald.aspald.data.AuthRepository
 import com.aspald.aspald.data.api.ApiConfig
 import com.aspald.aspald.data.api.ApiServices
@@ -16,6 +17,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+
+private val Context.dataStore by preferencesDataStore("app_preferences")
 @Module
 @InstallIn(ViewModelComponent::class)
 object ViewModelModule {
@@ -26,6 +29,7 @@ object ViewModelModule {
     ) : AuthRepository {
         return AuthRepository(apiServices, userPreferences)
     }
+
 
     @Module
     @InstallIn(SingletonComponent::class)
@@ -40,15 +44,8 @@ object ViewModelModule {
         @Singleton
         @Provides
         fun provideUserPreferences(@ApplicationContext context: Context): UserPreferences {
-            // Assuming 'createDataStore' is a function that creates a DataStore<Preferences> instance
-            val dataStore: DataStore<Preferences> = context.createDataStore(name = "user_preferences")
-            return UserPreferences.getInstance(dataStore)
+            return UserPreferences.getInstance(context.dataStore)
         }
     }
 }
 
-private fun Context.createDataStore(name: String): DataStore<Preferences> {
-    return PreferenceDataStoreFactory.create(
-        produceFile = { this.dataStoreFile(name) }
-    )
-}
