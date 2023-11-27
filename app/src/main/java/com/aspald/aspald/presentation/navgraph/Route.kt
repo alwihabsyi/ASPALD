@@ -9,6 +9,7 @@ sealed class Route(
     data object SearchScreen: Route(route = "searchScreen")
     data object DetailScreen: Route(route = "detailScreen")
     data object SignInScreen: Route(route = "signInScreen")
+    data object SignUpScreen: Route(route = "signUpScreen")
     
     //Profile
     data object AccountScreen: Route(route = "accountScreen")
