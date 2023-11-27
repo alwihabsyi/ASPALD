@@ -2,6 +2,8 @@ package com.aspald.aspald
 
 import android.Manifest
 import android.content.Intent
+import android.net.Uri
+import android.net.Uri.*
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
@@ -18,10 +20,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.aspald.aspald.presentation.home.HomeScreen
+
 import com.aspald.aspald.presentation.home.HomeViewModel
 import com.aspald.aspald.presentation.navgraph.AspaldNavigator
+import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.presentation.signin.SignInScreen
+
 import com.aspald.aspald.ui.theme.ASPALDTheme
 import com.aspald.aspald.utils.PermissionEvent
 import com.aspald.aspald.utils.RationaleAlert
@@ -36,7 +40,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val locationViewModel: HomeViewModel by viewModels()
+        val mainViewModel : MainViewModel by viewModels()
         setContent {
+
+            val navController = rememberNavController()
+            val initialRoute by mainViewModel.initialRoute.collectAsStateWithLifecycle()
+
             val permissionState = rememberMultiplePermissionsState(
                 permissions = listOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -70,12 +79,16 @@ class MainActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
                 ) {
-                    AspaldNavigator(
-                        uiState = uiState,
-                        onRequestPermission = {
-                            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                        }
-                    )
+                   NavHost(navController = rememberNavController(), startDestination = Route.SignInScreen.route){
+                       composable(Route.SignInScreen.route) { SignInScreen(navController) }
+                       composable(Route.HomeScreen.route){
+                           AspaldNavigator(uiState = uiState, onRequestPermission = {
+                               startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                   data = fromParts("package", packageName, null)
+                               })
+                           })
+                       }
+                   }
                 }
             }
         }
