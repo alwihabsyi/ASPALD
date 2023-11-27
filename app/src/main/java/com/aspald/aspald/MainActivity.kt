@@ -25,6 +25,7 @@ import com.aspald.aspald.presentation.home.HomeViewModel
 import com.aspald.aspald.presentation.navgraph.AspaldNavigator
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.presentation.signin.SignInScreen
+import com.aspald.aspald.presentation.signup.SignUpScreen
 
 import com.aspald.aspald.ui.theme.ASPALDTheme
 import com.aspald.aspald.utils.PermissionEvent
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val locationViewModel: HomeViewModel by viewModels()
         val mainViewModel : MainViewModel by viewModels()
+
         setContent {
 
             val navController = rememberNavController()
@@ -79,16 +81,24 @@ class MainActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
                 ) {
-                   NavHost(navController = rememberNavController(), startDestination = Route.SignInScreen.route){
-                       composable(Route.SignInScreen.route) { SignInScreen(navController) }
-                       composable(Route.HomeScreen.route){
-                           AspaldNavigator(uiState = uiState, onRequestPermission = {
-                               startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                   data = fromParts("package", packageName, null)
-                               })
-                           })
-                       }
-                   }
+//                   NavHost(navController = rememberNavController(), startDestination = Route.SignInScreen.route){
+//                       composable(Route.SignInScreen.route) { SignInScreen(navController) }
+//                       composable(Route.SignUpScreen.route) { SignUpScreen(navController) }
+//                       composable(Route.HomeScreen.route){
+//                           AspaldNavigator(uiState = uiState, onRequestPermission = {
+//                               startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+//                                   data = fromParts("package", packageName, null)
+//                               })
+//                           })
+//                       }
+//                   }
+                    AspaldNavigator(
+                        uiState = uiState,
+                        onRequestPermission = {
+                            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                        },
+                        initialRoute = initialRoute // Pass the initialRoute here
+                    )
                 }
             }
         }
