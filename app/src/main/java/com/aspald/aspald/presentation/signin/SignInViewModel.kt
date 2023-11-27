@@ -32,10 +32,15 @@ class SignInViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             val result = authRepository.signIn(email, password)
-            _uiState.value = result.fold(
-                onSuccess = { UiState.Success(null) },
-                onFailure = { UiState.Error(it.message ?: "Unknown error") }
-            )
+//            _uiState.value = result.fold(
+//                onSuccess = { UiState.Success(null) },
+//                onFailure = { UiState.Error(it.message ?: "Unknown error") }
+//            )
+            if (result.isSuccess) {
+                _uiState.value = UiState.Success(null)
+            } else {
+                _uiState.value = UiState.Error(result.exceptionOrNull()?.message ?: "Unknown Error")
+            }
         }
     }
 }
