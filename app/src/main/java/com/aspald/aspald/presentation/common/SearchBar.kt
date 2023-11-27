@@ -22,6 +22,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.aspald.aspald.R
@@ -71,7 +73,8 @@ fun SearchBar(
                 Text(
                     text = "Search location",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = colorResource(id = R.color.placeholder)
+                    color = colorResource(id = R.color.placeholder),
+                    fontFamily = FontFamily(Font(R.font.poppins))
                 )
             },
             shape = MaterialTheme.shapes.large,
