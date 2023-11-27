@@ -171,10 +171,76 @@ fun HeadingTextComponent(value: String){
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTextField(
+    labelValue: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    errorStatus: Boolean = false,
+) {
+    var hasInteracted by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf("") }
+
+    val textValue = remember {
+        mutableStateOf("")
+    }
+
+    Column {
+        OutlinedTextField(
+            shape = RoundedCornerShape(12.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = if (errorStatus) Color.Red else colorResource(id = R.color.grey),
+                focusedLabelColor = if (errorStatus) Color.Red else colorResource(id = R.color.grey),
+                cursorColor = if (errorStatus) Color.Red else colorResource(id = R.color.grey),
+            ),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            singleLine = true,
+            maxLines = 1,
+            value = textValue.value,
+            onValueChange = {
+                textValue.value = it
+                onValueChange(it)
+
+                // Name validation
+                if (hasInteracted) {
+                    errorText = if (it.isNotEmpty()) "" else "Name can't be empty"
+                }
+            },
+            label = { Text(text = labelValue) },
+            modifier = modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_message),
+                    contentDescription = "Email Icon"
+                )
+            },
+            isError = errorStatus || errorText.isNotEmpty(),
+        )
+        if (errorText.isNotEmpty()) {
+            Text(
+                text = errorText,
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .padding(start = 0.dp)
+            )
+        }
+    }
+
+
+
+    DisposableEffect(textValue.value) {
+        hasInteracted = true
+        onDispose { }
+    }
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyEmailTextField(
     labelValue: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
