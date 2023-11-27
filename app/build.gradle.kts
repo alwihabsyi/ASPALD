@@ -91,7 +91,8 @@ dependencies {
     // Datastore
     implementation("androidx.datastore:datastore-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
-    implementation("androidx.datastore:datastore-preferences-android:1.1.0-alpha05")
+    //implementation("androidx.datastore:datastore-preferences-android:1.1.0-alpha05")
+    implementation("androidx.datastore:datastore-preferences:1.0.0-alpha08")
 
     // Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
