@@ -1,82 +1,55 @@
 package com.aspald.aspald.presentation.signin
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.colorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aspald.aspald.R
 import com.aspald.aspald.presentation.components.ButtonComponent
 import com.aspald.aspald.presentation.components.MyTextField
-import com.aspald.aspald.presentation.components.MyTypography
 import com.aspald.aspald.presentation.components.PasswordTextField
+import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.utils.UiState
 
-
 @Composable
-fun SignInScreen(navController: NavController,signInViewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(
+    navController: NavController,
+    signInViewModel: SignInViewModel = hiltViewModel()
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
-
     var emailError by remember { mutableStateOf(false) }
 
     val uiState by signInViewModel.uiState.collectAsState()
 
-    when(uiState){
-        is UiState.Loading -> {
-            // Show a loading indicator
+    // Navigate when sign in is successful
+    LaunchedEffect(uiState) {
+        if (uiState is UiState.Success) {
+            navController.navigate(Route.HomeScreen.route) { // This should match the route defined in your NavHost
+                popUpTo(Route.SignInScreen.route) { inclusive = true }
+            }
         }
-        is UiState.Success -> {
-            // Handle success, navigate to next screen or show a success message
-        }
-        is UiState.Error -> {
-            // Show an error message
-            val errorMessage = (uiState as UiState.Error).message
-            // Update your UI with the error message
-        }
-
-        else -> {}
     }
 
-    MaterialTheme(
-        typography = MyTypography
-    ) {
+    MaterialTheme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-
-
-            ) {
-
+        ) {
             Spacer(modifier = Modifier.height(160.dp))
 
-            Column(
-                modifier = Modifier.align(Alignment.Start)
-            ) {
+            Column(modifier = Modifier.align(Alignment.Start)) {
                 Text(
                     text = "Sign In",
                     style = MaterialTheme.typography.headlineLarge
@@ -91,10 +64,10 @@ fun SignInScreen(navController: NavController,signInViewModel: SignInViewModel =
             Spacer(modifier = Modifier.height(50.dp))
 
             MyTextField(
-                labelValue = "email",
+                labelValue = "Email",
                 onValueChange = {
                     email = it
-                    emailError
+                    emailError = it.isBlank() // Example validation
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,21 +79,34 @@ fun SignInScreen(navController: NavController,signInViewModel: SignInViewModel =
 
             PasswordTextField(
                 password = password,
-                labelValue = "password",
-                onValueChange = {password = it},
+                labelValue = "Password",
+                onValueChange = { password = it },
                 passwordVisibility = passwordVisibility,
-                onTogglePasswordVisibility = { passwordVisibility = !passwordVisibility })
-
-            Text(
-                text = "Forgot password?",
-                modifier = Modifier
-                    .padding(top = 16.dp, bottom = 39.dp)
-                    .align(Alignment.Start),
-                style = MaterialTheme.typography.labelMedium,
-                color = colorResource(id = R.color.primary)
+                onTogglePasswordVisibility = { passwordVisibility = !passwordVisibility }
             )
 
-            ButtonComponent(onClick = { signInViewModel.signIn(email, password)}, buttonText = "Sign In")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (uiState is UiState.Error) {
+                val errorMessage = (uiState as UiState.Error).message
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            ButtonComponent(
+                onClick = {
+                    if (email.isNotEmpty() && password.isNotEmpty()) {
+                        signInViewModel.signIn(email, password)
+                    } else {
+                        emailError = email.isEmpty()
+                        // You might want to handle password error similarly
+                    }
+                },
+                buttonText = "Sign In"
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -128,19 +114,24 @@ fun SignInScreen(navController: NavController,signInViewModel: SignInViewModel =
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Don’t have an account?", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = "Don’t have an account?",
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 TextButton(onClick = { /* TODO: Navigate to Sign Up */ }) {
-                    Text("Sign up", style = MaterialTheme.typography.bodyMedium,color = colorResource(id = R.color.primary))
+                    Text(
+                        text = "Sign up",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorResource(id = R.color.primary)
+                    )
                 }
             }
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun LoginComposablePreview(){
-    Surface(color = Color.White) {
-      //  SignInScreen()
-    }
+fun SignInScreenPreview() {
+    SignInScreen(navController = NavController(LocalContext.current)) // You need to provide a NavController here.
 }
