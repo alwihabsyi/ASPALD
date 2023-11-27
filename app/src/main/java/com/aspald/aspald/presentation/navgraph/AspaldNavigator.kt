@@ -31,6 +31,8 @@ import com.aspald.aspald.presentation.profile.account.AccountScreen
 import com.aspald.aspald.presentation.profile.history.HistoryScreen
 import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
 import com.aspald.aspald.presentation.report.ReportScreen
+import com.aspald.aspald.presentation.signin.SignInScreen
+import com.aspald.aspald.presentation.signup.SignUpScreen
 import com.aspald.aspald.ui.theme.AspaldWhite
 import com.aspald.aspald.ui.theme.AspaldYellow
 import com.aspald.aspald.utils.UiState
@@ -42,7 +44,9 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun AspaldNavigator(
     uiState: UiState,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    initialRoute: String
+
 ) {
     val navController = rememberNavController()
     val backStackState = navController.currentBackStackEntryAsState().value
@@ -63,7 +67,21 @@ fun AspaldNavigator(
         else -> false
     }
     SetStatusBar(backStackState)
-    SetNavigation(isBottomBarVisible, selectedItem, navController, uiState, onRequestPermission)
+    SetNavigation(isBottomBarVisible, selectedItem, navController, uiState, onRequestPermission, initialRoute )
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            UiState.SignIn -> {
+                navController.navigate(Route.SignInScreen.route)
+            }
+            UiState.SignUp -> {
+                navController.navigate(Route.SignUpScreen.route)
+            }
+
+            else -> {}
+        }
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +91,8 @@ fun SetNavigation(
     selectedItem: Int,
     navController: NavHostController,
     uiState: UiState,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    initialRoute: String
 ) {
     val bottomNavigationItems = remember {
         listOf(
@@ -97,9 +116,14 @@ fun SetNavigation(
         val bottomPadding = it.calculateBottomPadding()
         NavHost(
             navController = navController,
-            startDestination = Route.HomeScreen.route,
+            startDestination = if (initialRoute == "home") {
+                Route.HomeScreen.route // If there's a token, start at the home screen
+            } else {
+                Route.SignInScreen.route // If there's no token, start at the sign-in screen
+            },
             modifier = Modifier.padding(bottom = bottomPadding)
         ) {
+
             composable(route = Route.HomeScreen.route) {
                 with(uiState) {
                     when(this) {
@@ -119,9 +143,9 @@ fun SetNavigation(
                                 cameraState.centerOnLocation(currentLoc)
                             }
                             HomeScreen(
+                                onSearch = { navigateToTab(navController, Route.SearchScreen.route) },
                                 currentPosition = LatLng(currentLoc.latitude, currentLoc.longitude),
-                                cameraState = cameraState,
-                                onSearch = { navigateToTab(navController, Route.SearchScreen.route) }
+                                cameraState = cameraState
                             )
                         }
 
@@ -134,6 +158,10 @@ fun SetNavigation(
                     onBackClick = { navController.navigateUp() }
                 )
             }
+
+            composable(Route.SignInScreen.route) { SignInScreen(navController) }
+            composable(Route.SignUpScreen.route) { SignUpScreen(navController) }
+
             composable(route = Route.ProfileNavigator.route) {
                 val context = LocalContext.current
                 ProfileScreen(
@@ -147,6 +175,8 @@ fun SetNavigation(
                     }
                 )
             }
+
+
             composable(route = Route.SearchScreen.route) {
 
             }
@@ -236,3 +266,4 @@ private fun navigateProfile(navController: NavController, route: String) {
         launchSingleTop = true
     }
 }
+
