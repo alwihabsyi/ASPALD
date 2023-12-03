@@ -7,4 +7,5 @@
     <string name="add_helpful_photos">Add helpful photos</string>
     <string name="loading_message">Make sure you have active internet connection and GPS turned on</string>
     <string name="permission_needed">We need permissions to use this app</string>
+    <string name="title_activity_auth">AuthActivity</string>
 </resources>

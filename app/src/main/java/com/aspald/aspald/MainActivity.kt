@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aspald.aspald.presentation.home.HomeViewModel
-import com.aspald.aspald.presentation.navgraph.AspaldNavigator
+import com.aspald.aspald.presentation.navgraph.NavGraph
 import com.aspald.aspald.ui.theme.ASPALDTheme
 import com.aspald.aspald.utils.PermissionEvent
 import com.aspald.aspald.utils.RationaleAlert
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val locationViewModel: HomeViewModel by viewModels()
+        val viewModel: HomeViewModel by viewModels()
         setContent {
             val permissionState = rememberMultiplePermissionsState(
                 permissions = listOf(
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
-            val uiState by locationViewModel.state.collectAsStateWithLifecycle()
+            val uiState by viewModel.state.collectAsStateWithLifecycle()
             ASPALDTheme {
                 LaunchedEffect(!hasLocationPermission()) {
                     permissionState.launchMultiplePermissionRequest()
@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 when {
                     permissionState.allPermissionsGranted -> {
                         LaunchedEffect(Unit) {
-                            locationViewModel.handle(PermissionEvent.Granted)
+                            viewModel.handle(PermissionEvent.Granted)
                         }
                     }
                     permissionState.shouldShowRationale -> {
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     }
                     !permissionState.allPermissionsGranted && !permissionState.shouldShowRationale -> {
                         LaunchedEffect(Unit) {
-                            locationViewModel.handle(PermissionEvent.Revoked)
+                            viewModel.handle(PermissionEvent.Revoked)
                         }
                     }
                 }
@@ -64,11 +64,12 @@ class MainActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
                 ) {
-                    AspaldNavigator(
+                    NavGraph(
                         uiState = uiState,
                         onRequestPermission = {
                             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                        }
+                        },
+                        startDestination = viewModel.startDestination
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.aspald.aspald.presentation.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -21,21 +23,27 @@ import com.aspald.aspald.R
 import com.aspald.aspald.ui.theme.AspaldYellow
 
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(
+    isFromHome: Boolean = false
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Transparent),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CircularProgressIndicator(
             color = AspaldYellow
         )
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            modifier = Modifier.widthIn(200.dp, 250.dp),
-            text = stringResource(id = R.string.loading_message),
-            fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium)),
-            textAlign = TextAlign.Center
-        )
+        if (isFromHome) {
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                modifier = Modifier.widthIn(200.dp, 250.dp),
+                text = stringResource(id = R.string.loading_message),
+                fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium)),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }

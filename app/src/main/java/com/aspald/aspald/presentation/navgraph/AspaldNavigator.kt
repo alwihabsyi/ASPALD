@@ -7,7 +7,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -15,7 +14,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -26,22 +24,24 @@ import com.aspald.aspald.R
 import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.common.RequestPermissionScreen
 import com.aspald.aspald.presentation.home.HomeScreen
+import com.aspald.aspald.presentation.navgraph.components.AspaldBottomNavigation
+import com.aspald.aspald.presentation.navgraph.components.BottomNavigationItem
 import com.aspald.aspald.presentation.profile.ProfileScreen
 import com.aspald.aspald.presentation.profile.account.AccountScreen
 import com.aspald.aspald.presentation.profile.history.HistoryScreen
 import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
 import com.aspald.aspald.presentation.report.ReportScreen
-import com.aspald.aspald.ui.theme.AspaldWhite
-import com.aspald.aspald.ui.theme.AspaldYellow
-import com.aspald.aspald.utils.UiState
+import com.aspald.aspald.utils.SetStatusBar
+import com.aspald.aspald.utils.MapState
 import com.aspald.aspald.utils.centerOnLocation
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.aspald.aspald.utils.navigateProfile
+import com.aspald.aspald.utils.navigateToTab
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun AspaldNavigator(
-    uiState: UiState,
+    uiState: MapState,
     onRequestPermission: () -> Unit
 ) {
     val navController = rememberNavController()
@@ -72,7 +72,7 @@ fun SetNavigation(
     bottomBarVisible: Boolean,
     selectedItem: Int,
     navController: NavHostController,
-    uiState: UiState,
+    uiState: MapState,
     onRequestPermission: () -> Unit
 ) {
     val bottomNavigationItems = remember {
@@ -103,13 +103,13 @@ fun SetNavigation(
             composable(route = Route.HomeScreen.route) {
                 with(uiState) {
                     when(this) {
-                        UiState.Loading -> {
-                            LoadingScreen()
+                        MapState.Loading -> {
+                            LoadingScreen(isFromHome = true)
                         }
-                        UiState.RevokedPermissions -> {
+                        MapState.RevokedPermissions -> {
                             RequestPermissionScreen(onRequestPermission)
                         }
-                        is UiState.Success -> {
+                        is MapState.Success -> {
                             val currentLoc = LatLng(
                                 location?.latitude ?: 0.0,
                                 location?.longitude ?: 0.0
@@ -197,40 +197,5 @@ fun onItemClicked(navController: NavController, index: Int) {
             navController = navController,
             route = Route.ProfileNavigator.route
         )
-    }
-}
-
-@Composable
-fun SetStatusBar(backStackState: NavBackStackEntry?) {
-    val systemController = rememberSystemUiController()
-    val inProfile = backStackState?.destination?.route == Route.ProfileNavigator.route
-
-    SideEffect {
-        systemController.setSystemBarsColor(
-            color = if (inProfile) AspaldYellow else AspaldWhite,
-            darkIcons = !inProfile
-        )
-    }
-}
-
-private fun navigateToTab(navController: NavController, route: String) {
-    navController.navigate(route) {
-        navController.graph.startDestinationRoute?.let { homeScreen ->
-            popUpTo(homeScreen) {
-                saveState = true
-            }
-            restoreState = true
-            launchSingleTop = true
-        }
-    }
-}
-
-private fun navigateProfile(navController: NavController, route: String) {
-    navController.navigate(route) {
-        popUpTo(Route.ProfileNavigator.route) {
-            saveState = true
-        }
-        restoreState = true
-        launchSingleTop = true
     }
 }

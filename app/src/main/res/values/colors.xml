@@ -10,4 +10,7 @@
     <color name="body">#4E4B66</color>
     <color name="placeholder">#A0A3BD</color>
     <color name="input_background">#fff</color>
+    <color name="primary">#FFF7C016</color>
+    <color name="secondary">#FF3D2A00</color>
+    <color name="grey">#FF686777</color>
 </resources>

@@ -16,17 +16,25 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import com.aspald.aspald.presentation.navgraph.Route
+import com.aspald.aspald.ui.theme.AspaldWhite
+import com.aspald.aspald.ui.theme.AspaldYellow
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import java.util.regex.Pattern
 
 fun Context.hasLocationPermission(): Boolean {
     return ContextCompat.checkSelfPermission(
@@ -99,4 +107,61 @@ fun bitmapDescriptorFromVector(
     val canvas = android.graphics.Canvas(bm)
     drawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bm)
+}
+
+fun isPasswordValid(password: String): Boolean {
+    val pattern = Pattern.compile(
+        ".{8,}"                // at least 8 characters
+    )
+    return pattern.matcher(password).matches()
+}
+
+fun isValidEmail(email: String): Boolean {
+    val emailRegex = Regex("^\\S+@\\S+\\.\\S+\$")
+    return emailRegex.matches(email)
+}
+
+@Composable
+fun SetStatusBar(backStackState: NavBackStackEntry?) {
+    val systemController = rememberSystemUiController()
+    val inProfile = backStackState?.destination?.route == Route.ProfileNavigator.route
+
+    SideEffect {
+        systemController.setSystemBarsColor(
+            color = if (inProfile) AspaldYellow else AspaldWhite,
+            darkIcons = !inProfile
+        )
+    }
+}
+
+fun navigateToTab(navController: NavController, route: String) {
+    navController.navigate(route) {
+        navController.graph.startDestinationRoute?.let { homeScreen ->
+            popUpTo(homeScreen) {
+                saveState = true
+            }
+            restoreState = true
+            launchSingleTop = true
+        }
+    }
+}
+
+fun navigateProfile(navController: NavController, route: String) {
+    navController.navigate(route) {
+        popUpTo(Route.ProfileNavigator.route) {
+            saveState = true
+        }
+        restoreState = true
+        launchSingleTop = true
+    }
+}
+
+fun navigateAuth(navController: NavController, route: String) {
+    navController.navigate(route) {
+        popUpTo(Route.SignInScreen.route) {
+            saveState = true
+        }
+        restoreState = true
+        launchSingleTop = true
+    }
 }
