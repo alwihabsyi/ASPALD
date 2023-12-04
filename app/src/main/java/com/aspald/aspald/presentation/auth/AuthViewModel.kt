@@ -44,6 +44,10 @@ class AuthViewModel @Inject constructor(
                         _state.value = UiState.Error(it.message.toString())
                     }
             }
+
+            else -> {
+                _state.value = UiState.Loading()
+            }
         }
     }
 }

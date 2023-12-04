@@ -9,10 +9,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.aspald.aspald.presentation.aspald_navigator.AspaldNavigator
 import com.aspald.aspald.presentation.auth.AuthViewModel
 import com.aspald.aspald.presentation.auth.signin.SignInScreen
 import com.aspald.aspald.presentation.auth.signup.SignUpScreen
 import com.aspald.aspald.utils.MapState
+import com.aspald.aspald.utils.SetStatusBar
 import com.aspald.aspald.utils.navigateAuth
 
 @Composable
@@ -33,20 +35,27 @@ fun NavGraph(
             composable(
                 route = Route.SignInScreen.route
             ) {
+                SetStatusBar(backStackState = navController.currentBackStackEntry)
                 val viewModel: AuthViewModel = hiltViewModel()
                 val state = viewModel.state.collectAsState()
                 SignInScreen(
                     event = viewModel::onEvent,
                     state = state.value,
                     onSignUpClick = { navigateAuth(navController, Route.SignUpScreen.route) },
-                    navigateToHome = { navigateToHome(navController, Route.HomeNavigator.route) }
+                    navigateToHome = { navigate(navController, Route.HomeNavigator.route) }
                 )
             }
 
             composable(
                 route = Route.SignUpScreen.route
             ) {
-                SignUpScreen()
+                val viewModel: AuthViewModel = hiltViewModel()
+                val state = viewModel.state.collectAsState()
+                SignUpScreen(
+                    event = viewModel::onEvent,
+                    state = state.value,
+                    onSignInClick = { navigateAuth(navController, Route.SignInScreen.route) }
+                )
             }
         }
 
@@ -57,13 +66,19 @@ fun NavGraph(
             composable(
                 route = Route.AspaldNavigator.route
             ) {
-                AspaldNavigator(uiState = uiState, onRequestPermission = onRequestPermission)
+                AspaldNavigator(
+                    uiState = uiState,
+                    onRequestPermission = onRequestPermission,
+                    onLogOut = {
+                        navigate(navController, Route.AuthNavigator.route)
+                    }
+                )
             }
         }
     }
 }
 
-fun navigateToHome(navController: NavController, route: String) {
+fun navigate(navController: NavController, route: String) {
     navController.navigate(route) {
         popUpTo(navController.graph.findStartDestination().id){
             inclusive = true

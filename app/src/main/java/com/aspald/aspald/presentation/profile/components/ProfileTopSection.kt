@@ -75,7 +75,7 @@ fun ProfileTopSection(
                             .heightIn(90.dp, 130.dp)
                             .clip(CircleShape)
                             .align(Alignment.Center),
-                        painter = painterResource(id = R.drawable.profile),
+                        painter = painterResource(id = R.drawable.ic_person),
                         contentScale = ContentScale.Crop,
                         contentDescription = null
                     )

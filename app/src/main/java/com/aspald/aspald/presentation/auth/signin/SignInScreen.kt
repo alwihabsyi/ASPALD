@@ -42,8 +42,7 @@ fun SignInScreen(
     var load by remember { mutableStateOf(false) }
     var isEmailValid by remember { mutableStateOf(true) }
     var isPasswordValid by remember { mutableStateOf(false) }
-    val isFieldEmpty =
-        email.isNotEmpty() && password.isNotEmpty() && isEmailValid && isPasswordValid
+    val isInputValid = email.isNotEmpty() && password.isNotEmpty()
 
     Column(
         modifier = Modifier
@@ -101,7 +100,7 @@ fun SignInScreen(
                 event(AuthEvent.SignIn(email, password))
             },
             buttonText = "Sign In",
-            isEnabled = isFieldEmpty
+            isEnabled = isInputValid
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -129,12 +128,14 @@ fun SignInScreen(
     when (state) {
         is UiState.Success -> {
             navigateToHome()
+            event(AuthEvent.ResetState)
         }
 
         is UiState.Error -> {
             load = false
             val context = LocalContext.current
             Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            event(AuthEvent.ResetState)
         }
 
         else -> {

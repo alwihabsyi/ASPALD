@@ -1,19 +1,19 @@
-package com.aspald.aspald.presentation.navgraph
+package com.aspald.aspald.presentation.aspald_navigator
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,15 +24,19 @@ import com.aspald.aspald.R
 import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.common.RequestPermissionScreen
 import com.aspald.aspald.presentation.home.HomeScreen
-import com.aspald.aspald.presentation.navgraph.components.AspaldBottomNavigation
-import com.aspald.aspald.presentation.navgraph.components.BottomNavigationItem
+import com.aspald.aspald.presentation.navgraph.Route
+import com.aspald.aspald.presentation.aspald_navigator.components.AspaldBottomNavigation
+import com.aspald.aspald.presentation.aspald_navigator.components.BottomNavigationItem
+import com.aspald.aspald.presentation.profile.ProfileEvent
 import com.aspald.aspald.presentation.profile.ProfileScreen
+import com.aspald.aspald.presentation.profile.ProfileViewModel
 import com.aspald.aspald.presentation.profile.account.AccountScreen
 import com.aspald.aspald.presentation.profile.history.HistoryScreen
 import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
 import com.aspald.aspald.presentation.report.ReportScreen
 import com.aspald.aspald.utils.SetStatusBar
 import com.aspald.aspald.utils.MapState
+import com.aspald.aspald.utils.UiState
 import com.aspald.aspald.utils.centerOnLocation
 import com.aspald.aspald.utils.navigateProfile
 import com.aspald.aspald.utils.navigateToTab
@@ -42,7 +46,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun AspaldNavigator(
     uiState: MapState,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    onLogOut: () -> Unit
 ) {
     val navController = rememberNavController()
     val backStackState = navController.currentBackStackEntryAsState().value
@@ -63,7 +68,14 @@ fun AspaldNavigator(
         else -> false
     }
     SetStatusBar(backStackState)
-    SetNavigation(isBottomBarVisible, selectedItem, navController, uiState, onRequestPermission)
+    SetNavigation(
+        isBottomBarVisible,
+        selectedItem,
+        navController,
+        uiState,
+        onRequestPermission,
+        onLogOut
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +85,8 @@ fun SetNavigation(
     selectedItem: Int,
     navController: NavHostController,
     uiState: MapState,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    onLogOut: () -> Unit
 ) {
     val bottomNavigationItems = remember {
         listOf(
@@ -102,13 +115,15 @@ fun SetNavigation(
         ) {
             composable(route = Route.HomeScreen.route) {
                 with(uiState) {
-                    when(this) {
+                    when (this) {
                         MapState.Loading -> {
                             LoadingScreen(isFromHome = true)
                         }
+
                         MapState.RevokedPermissions -> {
                             RequestPermissionScreen(onRequestPermission)
                         }
+
                         is MapState.Success -> {
                             val currentLoc = LatLng(
                                 location?.latitude ?: 0.0,
@@ -121,26 +136,31 @@ fun SetNavigation(
                             HomeScreen(
                                 currentPosition = LatLng(currentLoc.latitude, currentLoc.longitude),
                                 cameraState = cameraState,
-                                onSearch = { navigateToTab(navController, Route.SearchScreen.route) }
+                                onSearch = {
+                                    navigateToTab(
+                                        navController,
+                                        Route.SearchScreen.route
+                                    )
+                                }
                             )
                         }
                     }
                 }
             }
             composable(route = Route.ReportScreen.route) {
-                ReportScreen (
+                ReportScreen(
                     onBackClick = { navController.navigateUp() }
                 )
             }
             composable(route = Route.ProfileNavigator.route) {
-                val context = LocalContext.current
+                val viewModel: ProfileViewModel = hiltViewModel()
+                val state = viewModel.state.collectAsState()
                 ProfileScreen(
                     navigate = { route ->
                         if (route == "Logout") {
-                            Toast.makeText(context, route, Toast.LENGTH_SHORT).show()
+                            logOut(event = viewModel::onEvent, state = state.value, onLogOut = onLogOut)
                             return@ProfileScreen
                         }
-
                         navigateProfile(navController, route)
                     }
                 )
@@ -156,14 +176,14 @@ fun SetNavigation(
             composable(
                 route = Route.ProfileSettingScreen.route
             ) {
-                ProfileEditScreen (
+                ProfileEditScreen(
                     onBackClick = { navController.navigateUp() }
                 )
             }
             composable(
                 route = Route.HistoryScreen.route
             ) {
-                HistoryScreen (
+                HistoryScreen(
                     onBackClick = { navController.navigateUp() }
                 )
             }
@@ -197,5 +217,20 @@ fun onItemClicked(navController: NavController, index: Int) {
             navController = navController,
             route = Route.ProfileNavigator.route
         )
+    }
+}
+
+fun logOut(
+    event: (ProfileEvent) -> Unit,
+    state: UiState<String>,
+    onLogOut: () -> Unit
+) {
+    event(ProfileEvent.LogOut)
+    when(state) {
+        is UiState.Success -> {
+            onLogOut()
+        }
+
+        else -> {}
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.aspald.aspald.R
 import com.aspald.aspald.ui.theme.AspaldYellow
+import com.aspald.aspald.ui.theme.LoadingBackground
 
 @Composable
 fun LoadingScreen(
@@ -29,7 +30,9 @@ fun LoadingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Transparent),
+            .background(
+                if(!isFromHome) LoadingBackground else Color.White
+            ),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

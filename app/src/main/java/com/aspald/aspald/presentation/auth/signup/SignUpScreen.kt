@@ -1,6 +1,6 @@
 package com.aspald.aspald.presentation.auth.signup
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,24 +20,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.aspald.aspald.R
+import com.aspald.aspald.presentation.auth.AuthEvent
 import com.aspald.aspald.presentation.common.ButtonComponent
 import com.aspald.aspald.presentation.common.EmailTextField
-import com.aspald.aspald.presentation.common.MyTextField
+import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.common.PasswordTextField
+import com.aspald.aspald.utils.UiState
 
 @Composable
-fun SignUpScreen() {
-    var name by remember{ mutableStateOf("") }
+fun SignUpScreen(
+    event: (AuthEvent) -> Unit,
+    state: UiState<String>,
+    onSignInClick: () -> Unit
+) {
+//    var name by remember{ mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
     var confirmPasswordVisibility by remember { mutableStateOf(false) }
+    var load by remember { mutableStateOf(false) }
 
-    var nameError by remember { mutableStateOf(false) }
+//    var nameError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
     var passwordValid by remember { mutableStateOf(false) }
 
@@ -67,17 +75,17 @@ fun SignUpScreen() {
 
         Spacer(modifier = Modifier.height(50.dp))
 
-        MyTextField(
-            labelValue = "name",
-            onValueChange = {
-                name = it
-                nameError = false // Reset error when user changes the email
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            errorStatus = nameError,
-        )
+//        MyTextField(
+//            labelValue = "name",
+//            onValueChange = {
+//                name = it
+//                nameError = false // Reset error when user changes the email
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(bottom = 8.dp),
+//            errorStatus = nameError,
+//        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -111,28 +119,21 @@ fun SignUpScreen() {
             password = confirmPassword,
             onValueChange = { isPasswordValid, pw ->
                 confirmPassword = pw
-                passwordValid = isPasswordValid // Reset error when user changes the confirmation password
+                passwordValid = isPasswordValid
             },
             passwordVisibility = confirmPasswordVisibility,
             onTogglePasswordVisibility = { confirmPasswordVisibility = !confirmPasswordVisibility },
             labelValue = "re-enter password",
             modifier = Modifier.padding(bottom = 39.dp)
-
         )
-
 
         ButtonComponent(
             onClick = {
-                if (password == confirmPassword){
-                    Log.d("Coba", "$name, $email, $password, $confirmPassword")
-//                    TODO: Implement SignUp
-                }else {
-                    emailError = email.isEmpty()
-                    // You might want to handle password error similarly
-                }
+                event(AuthEvent.SignUp(email, password))
+                load = true
             },
             buttonText = "Sign Up",
-            isEnabled = true //TODO: Handling empty email n password
+            isEnabled = email.isNotEmpty() && password.isNotEmpty() && password == confirmPassword
         )
 
 
@@ -143,8 +144,35 @@ fun SignUpScreen() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Already have an account?", style = MaterialTheme.typography.bodyMedium)
-            TextButton(onClick = { /* TODO: Navigate to Sign In */ }) {
+            TextButton(onClick = onSignInClick) {
                 Text("Sign in", style = MaterialTheme.typography.bodyMedium, color = colorResource(id = R.color.primary))
+            }
+        }
+    }
+
+    val context = LocalContext.current
+    when (state) {
+        is UiState.Success -> {
+            load = false
+            email = ""
+            password = ""
+            confirmPassword = ""
+            Toast.makeText(context, "Sign up success, please sign in", Toast.LENGTH_SHORT).show()
+            event(AuthEvent.ResetState)
+        }
+
+        is UiState.Error -> {
+            load = false
+            email = ""
+            password = ""
+            confirmPassword = ""
+            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            event(AuthEvent.ResetState)
+        }
+
+        else -> {
+            if (load) {
+                LoadingScreen()
             }
         }
     }
