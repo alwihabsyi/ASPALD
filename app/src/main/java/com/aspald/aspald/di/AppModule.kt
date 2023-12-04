@@ -4,7 +4,9 @@ import android.content.Context
 import com.aspald.aspald.utils.LocationService
 import com.aspald.aspald.utils.LocationServiceInterface
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,4 +30,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth() = FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirestore() = Firebase.firestore
 }

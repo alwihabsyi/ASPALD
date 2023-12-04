@@ -28,6 +28,7 @@ import com.aspald.aspald.presentation.auth.AuthEvent
 import com.aspald.aspald.presentation.common.ButtonComponent
 import com.aspald.aspald.presentation.common.EmailTextField
 import com.aspald.aspald.presentation.common.LoadingScreen
+import com.aspald.aspald.presentation.common.MyTextField
 import com.aspald.aspald.presentation.common.PasswordTextField
 import com.aspald.aspald.utils.UiState
 
@@ -37,7 +38,7 @@ fun SignUpScreen(
     state: UiState<String>,
     onSignInClick: () -> Unit
 ) {
-//    var name by remember{ mutableStateOf("") }
+    var name by remember{ mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -45,7 +46,7 @@ fun SignUpScreen(
     var confirmPasswordVisibility by remember { mutableStateOf(false) }
     var load by remember { mutableStateOf(false) }
 
-//    var nameError by remember { mutableStateOf(false) }
+    var nameError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
     var passwordValid by remember { mutableStateOf(false) }
 
@@ -75,17 +76,17 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(50.dp))
 
-//        MyTextField(
-//            labelValue = "name",
-//            onValueChange = {
-//                name = it
-//                nameError = false // Reset error when user changes the email
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(bottom = 8.dp),
-//            errorStatus = nameError,
-//        )
+        MyTextField(
+            labelValue = "name",
+            onValueChange = {
+                name = it
+                nameError = false // Reset error when user changes the email
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            errorStatus = nameError,
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -129,11 +130,11 @@ fun SignUpScreen(
 
         ButtonComponent(
             onClick = {
-                event(AuthEvent.SignUp(email, password))
+                event(AuthEvent.SignUp(name, email, password))
                 load = true
             },
             buttonText = "Sign Up",
-            isEnabled = email.isNotEmpty() && password.isNotEmpty() && password == confirmPassword
+            isEnabled = email.isNotEmpty() && password.isNotEmpty() && name.isNotEmpty() && password == confirmPassword
         )
 
 
@@ -154,9 +155,7 @@ fun SignUpScreen(
     when (state) {
         is UiState.Success -> {
             load = false
-            email = ""
-            password = ""
-            confirmPassword = ""
+            onSignInClick()
             Toast.makeText(context, "Sign up success, please sign in", Toast.LENGTH_SHORT).show()
             event(AuthEvent.ResetState)
         }
