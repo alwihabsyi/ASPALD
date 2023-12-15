@@ -2,7 +2,7 @@ package com.aspald.aspald.data.model
 
 import com.google.gson.annotations.SerializedName
 
-data class SignUpResponse(
+data class PostResponse(
     @field:SerializedName("error")
     val error: Boolean,
 
