@@ -1,17 +1,21 @@
 package com.aspald.aspald.di
 
 import android.content.Context
+import com.aspald.aspald.data.api.ApiServices
+import com.aspald.aspald.data.repository.AuthRepository
+import com.aspald.aspald.utils.Constants.BASE_URL
+import com.aspald.aspald.utils.Constants.client
 import com.aspald.aspald.utils.LocationService
 import com.aspald.aspald.utils.LocationServiceInterface
+import com.aspald.aspald.utils.UserPreferences
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.firestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -29,9 +33,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseAuth() = FirebaseAuth.getInstance()
+    fun provideApiService(): ApiServices {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+            .create(ApiServices::class.java)
+    }
 
     @Provides
     @Singleton
-    fun provideFirestore() = Firebase.firestore
+    fun provideAuthRepository(
+        apiServices: ApiServices,
+        userPreferences: UserPreferences
+    ): AuthRepository = AuthRepository(apiServices, userPreferences)
 }

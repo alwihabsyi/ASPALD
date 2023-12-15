@@ -81,7 +81,9 @@ fun CardJalanRusak(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 5.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -103,6 +105,7 @@ fun CardJalanRusak(
                     modifier = Modifier.padding(horizontal = 10.dp),
                     text = "Direction",
                     fontFamily = FontFamily(Font(R.font.poppins_semibold, FontWeight.SemiBold)),
+                    fontSize = 14.sp,
                     color = Color.Black
                 )
             }
@@ -124,6 +127,7 @@ fun CardJalanRusak(
                 Text(
                     modifier = Modifier.padding(horizontal = 10.dp),
                     text = "Share",
+                    fontSize = 14.sp,
                     fontFamily = FontFamily(Font(R.font.poppins_semibold, FontWeight.SemiBold)),
                     color = AspaldOrange
                 )

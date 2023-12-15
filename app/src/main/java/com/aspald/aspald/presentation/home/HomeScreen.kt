@@ -37,8 +37,8 @@ import com.aspald.aspald.presentation.common.AspaldFab
 import com.aspald.aspald.presentation.common.MapUi
 import com.aspald.aspald.presentation.common.SearchBar
 import com.aspald.aspald.presentation.home.components.CardJalanRusak
-import com.aspald.aspald.ui.theme.AspaldOrange
 import com.aspald.aspald.ui.theme.AspaldWhite
+import com.aspald.aspald.ui.theme.AspaldYellow
 import com.aspald.aspald.utils.centerOnLocation
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -88,20 +88,20 @@ fun HomeScreen(
                     expanded = expanded != true
                 },
                 colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = AspaldWhite
+                    containerColor = AspaldYellow
                 )
             ) {
                 if (!expanded)
                     Icon(
                         painter = painterResource(id = R.drawable.ic_keyboard_arrow_up),
                         contentDescription = null,
-                        tint = AspaldOrange
+                        tint = AspaldWhite
                     )
                 else
                     Icon(
                         painter = painterResource(id = R.drawable.ic_keyboard_arrow_down),
                         contentDescription = null,
-                        tint = AspaldOrange
+                        tint = AspaldWhite
                     )
             }
             Spacer(modifier = Modifier.height(10.dp))
