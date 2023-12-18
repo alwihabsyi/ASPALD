@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.aspald.aspald.R
+import com.aspald.aspald.data.model.User
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.presentation.profile.components.ProfileTiles
 import com.aspald.aspald.presentation.profile.components.ProfileTopSection
@@ -20,13 +21,16 @@ import com.aspald.aspald.presentation.profile.components.ProfileTopSection
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
+    user: User,
     navigate: (String) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ProfileTopSection()
+        ProfileTopSection(
+            user = user
+        )
         Card(
             modifier = Modifier
                 .widthIn(min = 500.dp, max = 1000.dp)
@@ -57,7 +61,6 @@ val profileNavRoutes = listOf(
     ProfileNavigationItem(R.drawable.ic_profile, Route.AccountScreen.route, "Account"),
     ProfileNavigationItem(R.drawable.ic_profile, Route.ProfileSettingScreen.route, "Profile"),
     ProfileNavigationItem(R.drawable.ic_history, Route.HistoryScreen.route, "History"),
-    ProfileNavigationItem(R.drawable.ic_settings, Route.SettingsScreen.route, "Settings"),
     ProfileNavigationItem(R.drawable.ic_about, Route.AboutScreen.route, "About Aspald"),
     ProfileNavigationItem(R.drawable.ic_logout, "Logout", "Log out"),
 )

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aspald.aspald.R
+import com.aspald.aspald.data.model.Report
 import com.aspald.aspald.utils.bitmapDescriptorFromVector
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -20,16 +21,15 @@ import com.google.maps.android.compose.MarkerState
 fun MapUi(
     context: Context,
     cameraState: CameraPositionState,
-    currentPosition: LatLng
+    currentPosition: LatLng,
+    report: List<Report>
 ) {
     val marker = LatLng(currentPosition.latitude, currentPosition.longitude)
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraState,
         properties = MapProperties(
-            isMyLocationEnabled = true,
-            mapType = MapType.NORMAL,
-            isTrafficEnabled = true
+            isMyLocationEnabled = true, mapType = MapType.NORMAL, isTrafficEnabled = true
         ),
         uiSettings = MapUiSettings(
             compassEnabled = false,
@@ -47,5 +47,20 @@ fun MapUi(
             draggable = true,
             icon = bitmapDescriptorFromVector(context, R.drawable.ic_map_point)
         )
+        report.forEach {
+            val reportMarker = LatLng(it.lat, it.lon)
+            val descriptionMaxLength = 10
+            val ellipsis = "..."
+            Marker(
+                state = MarkerState(position = reportMarker),
+                title = it.name,
+                snippet = it.description.take(descriptionMaxLength - ellipsis.length) + ellipsis,
+                onInfoWindowClick = { marker ->
+                    Toast.makeText(context, marker.position.toString(), Toast.LENGTH_SHORT).show()
+                },
+                draggable = false,
+                icon = bitmapDescriptorFromVector(context, R.drawable.ic_map_point)
+            )
+        }
     }
 }

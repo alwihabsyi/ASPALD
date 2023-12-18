@@ -26,9 +26,9 @@ data class Report(
     @field:SerializedName("createdAt")
     val createdAt: Date,
     @field:SerializedName("lat")
-    val lat: Float,
+    val lat: Double,
     @field:SerializedName("lon")
-    val lon: Float
+    val lon: Double
 )
 
 data class ReportRequest(

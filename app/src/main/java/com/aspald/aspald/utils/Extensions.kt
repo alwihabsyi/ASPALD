@@ -25,6 +25,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.aspald.aspald.BuildConfig
+import com.aspald.aspald.data.remote.AuthInterceptor
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.ui.theme.AspaldWhite
 import com.aspald.aspald.ui.theme.AspaldYellow
@@ -34,6 +36,8 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import java.util.regex.Pattern
 
 fun Context.hasLocationPermission(): Boolean {
@@ -120,6 +124,26 @@ fun isValidEmail(email: String): Boolean {
     val emailRegex = Regex("^\\S+@\\S+\\.\\S+\$")
     return emailRegex.matches(email)
 }
+
+fun getInterceptor(token: String?): OkHttpClient {
+    val loggingInterceptor = if (BuildConfig.DEBUG) {
+        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    } else {
+        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
+    }
+
+    return if (token.isNullOrEmpty()) {
+        OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+    } else {
+        OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(token))
+            .addInterceptor(loggingInterceptor)
+            .build()
+    }
+}
+
 
 @Composable
 fun SetStatusBar(backStackState: NavBackStackEntry?) {

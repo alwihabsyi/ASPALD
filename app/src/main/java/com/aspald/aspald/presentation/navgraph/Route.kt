@@ -19,7 +19,6 @@ sealed class Route(
     // Profile
     data object AccountScreen: Route(route = "accountScreen")
     data object ProfileSettingScreen: Route(route = "profileSettingScreen")
-    data object ProfileScreen: Route(route = "profileScreen")
     data object HistoryScreen: Route(route = "historyScreen")
     data object SettingsScreen: Route(route = "settingsScreen")
     data object AboutScreen: Route(route = "aboutScreen")

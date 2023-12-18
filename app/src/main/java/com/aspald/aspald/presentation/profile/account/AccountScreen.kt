@@ -10,12 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aspald.aspald.R
+import com.aspald.aspald.data.model.User
 import com.aspald.aspald.presentation.common.AspaldTextField
 import com.aspald.aspald.presentation.common.AspaldTopBar
 import com.aspald.aspald.presentation.profile.components.AccountPhotoFrame
 
 @Composable
 fun AccountScreen(
+    user: User,
     onBackClick: () -> Unit
 ) {
     Column(
@@ -31,17 +33,17 @@ fun AccountScreen(
         AspaldTextField(
             icon = R.drawable.ic_email,
             label = "Email",
-            text = "mbamega@gmail.com",
-            onValueChange = {  },
-            onSearch = {  }
+            text = user.email ?: "",
+            onValueChange = { },
+            onSearch = { }
         )
         Spacer(modifier = Modifier.height(30.dp))
         AspaldTextField(
             icon = R.drawable.ic_lock,
             label = "Password",
             text = "********",
-            onValueChange = {  },
-            onSearch = {  }
+            onValueChange = { },
+            onSearch = { }
         )
     }
 }

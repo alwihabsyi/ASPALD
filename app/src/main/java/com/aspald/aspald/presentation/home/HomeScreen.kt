@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.aspald.aspald.R
+import com.aspald.aspald.data.model.Report
 import com.aspald.aspald.presentation.Dimens
 import com.aspald.aspald.presentation.common.AspaldFab
 import com.aspald.aspald.presentation.common.MapUi
@@ -48,7 +49,8 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onSearch: () -> Unit,
     currentPosition: LatLng,
-    cameraState: CameraPositionState
+    cameraState: CameraPositionState,
+    reports: List<Report>
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -59,7 +61,8 @@ fun HomeScreen(
         MapUi(
             context = context,
             cameraState = cameraState,
-            currentPosition = currentPosition
+            currentPosition = currentPosition,
+            report = reports
         )
         SearchBar(
             modifier = Modifier

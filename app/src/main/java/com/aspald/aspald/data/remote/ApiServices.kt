@@ -1,4 +1,4 @@
-package com.aspald.aspald.data.api
+package com.aspald.aspald.data.remote
 
 import com.aspald.aspald.data.model.GetReportResponse
 import com.aspald.aspald.data.model.SignInRequest
@@ -17,11 +17,11 @@ interface ApiServices {
     @GET("getReportById")
     suspend fun getReportById(userId: String): Response<GetReportResponse>
 
-    @POST("login")
+    @POST("api/v1/auth/login")
     suspend fun signIn(@Body request: SignInRequest) : Response<SignInResponse>
 
-    @POST("register")
-    suspend fun signUp(@Body request: SignUpRequest) : Response<PostResponse>
+    @POST("api/v1/auth/register")
+    suspend fun signUp(@Body request: SignUpRequest) : Response<String>
 
     @POST("postReport")
     fun postReport(@Body request: ReportRequest): Response<PostResponse>

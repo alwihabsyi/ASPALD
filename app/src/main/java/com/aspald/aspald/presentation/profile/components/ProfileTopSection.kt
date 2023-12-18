@@ -40,11 +40,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.aspald.aspald.R
+import com.aspald.aspald.data.model.User
 import com.aspald.aspald.ui.theme.AspaldYellow
 
 @Composable
 fun ProfileTopSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    user: User
 ) {
     Column(
         modifier = modifier.fillMaxHeight(0.5f),
@@ -67,6 +69,7 @@ fun ProfileTopSection(
                         .widthIn(100.dp, 140.dp)
                         .heightIn(100.dp, 140.dp)
                         .clip(CircleShape)
+                        .background(Color.Gray)
                         .border(border = BorderStroke(3.dp, Color.White), shape = CircleShape)
                 ) {
                     Image(
@@ -82,13 +85,13 @@ fun ProfileTopSection(
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "Mega Wangi",
+                    text = user.name ?: "Error",
                     fontSize = 22.sp,
                     fontFamily = FontFamily(Font(R.font.poppins_semibold, FontWeight.SemiBold)),
                     color = Color.White
                 )
                 Text(
-                    text = "mbamega@gmail.com",
+                    text = user.email ?: "Error",
                     fontSize = 16.sp,
                     fontFamily = FontFamily(Font(R.font.poppins, FontWeight.Normal)),
                     color = Color.White
@@ -118,7 +121,7 @@ fun ProfileTopSection(
                         tint = AspaldYellow
                     )
                     Text(
-                        text = "18 Reports Made",
+                        text = "0 Reports Made",
                         style = MaterialTheme.typography.bodyMedium,
                         fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium))
                     )

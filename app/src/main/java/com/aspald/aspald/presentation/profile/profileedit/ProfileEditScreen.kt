@@ -9,11 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.aspald.aspald.data.model.User
 import com.aspald.aspald.presentation.common.AspaldTopBar
 import com.aspald.aspald.presentation.common.IconLessTextField
 
 @Composable
 fun ProfileEditScreen(
+    user: User,
     onBackClick: () -> Unit
 ) {
     Column(
@@ -26,28 +28,28 @@ fun ProfileEditScreen(
         Spacer(modifier = Modifier.height(70.dp))
         IconLessTextField(
             label = "Name",
-            text = "Mega Wangi",
+            text = user.name ?: "",
             onValueChange = { },
             onSearch = { }
         )
         Spacer(modifier = Modifier.height(25.dp))
         IconLessTextField(
             label = "Address",
-            text = "Yogyakarta",
+            text = user.email ?: "...",
             onValueChange = { },
             onSearch = { }
         )
         Spacer(modifier = Modifier.height(25.dp))
         IconLessTextField(
             label = "Date of Birth",
-            text = "02-10-2000",
+            text = "...",
             onValueChange = { },
             onSearch = { }
         )
         Spacer(modifier = Modifier.height(25.dp))
         IconLessTextField(
             label = "Phone",
-            text = "085705778545",
+            text = "...",
             onValueChange = { },
             onSearch = { }
         )

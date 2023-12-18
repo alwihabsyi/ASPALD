@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
                 )
             )
             val uiState by viewModel.state.collectAsStateWithLifecycle()
+            val reports by viewModel.reports.collectAsStateWithLifecycle()
             ASPALDTheme {
                 LaunchedEffect(!hasLocationPermission()) {
                     permissionState.launchMultiplePermissionRequest()
@@ -65,10 +66,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
                 ) {
                     NavGraph(
+                        onDestroy = { onDestroy() },
                         uiState = uiState,
                         onRequestPermission = {
                             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                         },
+                        listReports = reports,
                         startDestination = viewModel.startDestination
                     )
                 }

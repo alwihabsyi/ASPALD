@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.aspald.aspald.data.model.Report
 import com.aspald.aspald.presentation.aspald_navigator.AspaldNavigator
 import com.aspald.aspald.presentation.auth.AuthViewModel
 import com.aspald.aspald.presentation.auth.signin.SignInScreen
@@ -21,7 +22,9 @@ import com.aspald.aspald.utils.navigateAuth
 fun NavGraph(
     startDestination: String,
     uiState: MapState,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    onDestroy: () -> Unit,
+    listReports: List<Report>
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -41,9 +44,11 @@ fun NavGraph(
                 SignInScreen(
                     event = viewModel::onEvent,
                     state = state.value,
-                    onSignUpClick = { navigateAuth(navController, Route.SignUpScreen.route) },
-                    navigateToHome = { navigate(navController, Route.HomeNavigator.route) }
-                )
+                    onSignUpClick = { navigateAuth(navController, Route.SignUpScreen.route) }
+                ) {
+                    onDestroy()
+                    navigate(navController, Route.HomeNavigator.route)
+                }
             }
 
             composable(
@@ -53,9 +58,8 @@ fun NavGraph(
                 val state = viewModel.state.collectAsState()
                 SignUpScreen(
                     event = viewModel::onEvent,
-                    state = state.value,
-                    onSignInClick = { navigateAuth(navController, Route.SignInScreen.route) }
-                )
+                    state = state.value
+                ) { navigateAuth(navController, Route.SignInScreen.route) }
             }
         }
 
@@ -68,6 +72,7 @@ fun NavGraph(
             ) {
                 AspaldNavigator(
                     uiState = uiState,
+                    reports = listReports,
                     onRequestPermission = onRequestPermission,
                     onLogOut = {
                         navigate(navController, Route.AuthNavigator.route)

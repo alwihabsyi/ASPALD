@@ -14,9 +14,11 @@ import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,10 +33,12 @@ import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.common.MyTextField
 import com.aspald.aspald.presentation.common.PasswordTextField
 import com.aspald.aspald.utils.UiState
+import kotlinx.coroutines.launch
+import kotlin.reflect.KSuspendFunction1
 
 @Composable
 fun SignUpScreen(
-    event: (AuthEvent) -> Unit,
+    event: KSuspendFunction1<AuthEvent, Unit>,
     state: UiState<String>,
     onSignInClick: () -> Unit
 ) {
@@ -49,6 +53,7 @@ fun SignUpScreen(
     var nameError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
     var passwordValid by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -130,7 +135,7 @@ fun SignUpScreen(
 
         ButtonComponent(
             onClick = {
-                event(AuthEvent.SignUp(name, email, password))
+                coroutineScope.launch { event(AuthEvent.SignUp(name, email, password)) }
                 load = true
             },
             buttonText = "Sign Up",
@@ -157,7 +162,9 @@ fun SignUpScreen(
             load = false
             onSignInClick()
             Toast.makeText(context, "Sign up success, please sign in", Toast.LENGTH_SHORT).show()
-            event(AuthEvent.ResetState)
+            LaunchedEffect(Unit) {
+                event(AuthEvent.ResetState)
+            }
         }
 
         is UiState.Error -> {
@@ -166,7 +173,9 @@ fun SignUpScreen(
             password = ""
             confirmPassword = ""
             Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-            event(AuthEvent.ResetState)
+            LaunchedEffect(Unit) {
+                event(AuthEvent.ResetState)
+            }
         }
 
         else -> {

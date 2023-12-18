@@ -34,6 +34,7 @@ fun AspaldTextField(
     label: String,
     text: String,
     icon: Int,
+    isEditable: Boolean = false,
     onValueChange: (String) -> Unit,
     onSearch: () -> Unit
 ) {
@@ -62,11 +63,13 @@ fun AspaldTextField(
             Icon(painter = painterResource(id = icon), contentDescription = null)
         },
         trailingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_edit),
-                contentDescription = null,
-                tint = AspaldOrange
-            )
+            if (isEditable) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_edit),
+                    contentDescription = null,
+                    tint = AspaldOrange
+                )
+            }
         },
         enabled = false,
         singleLine = true,

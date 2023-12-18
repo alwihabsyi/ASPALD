@@ -12,9 +12,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,10 +30,12 @@ import com.aspald.aspald.presentation.common.EmailTextField
 import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.common.PasswordTextField
 import com.aspald.aspald.utils.UiState
+import kotlinx.coroutines.launch
+import kotlin.reflect.KSuspendFunction1
 
 @Composable
 fun SignInScreen(
-    event: (AuthEvent) -> Unit,
+    event: KSuspendFunction1<AuthEvent, Unit>,
     onSignUpClick: () -> Unit,
     state: UiState<String>,
     navigateToHome: () -> Unit
@@ -43,6 +47,7 @@ fun SignInScreen(
     var isEmailValid by remember { mutableStateOf(true) }
     var isPasswordValid by remember { mutableStateOf(false) }
     val isInputValid = email.isNotEmpty() && password.isNotEmpty()
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -97,7 +102,7 @@ fun SignInScreen(
         ButtonComponent(
             onClick = {
                 load = true
-                event(AuthEvent.SignIn(email, password))
+                coroutineScope.launch { event(AuthEvent.SignIn(email, password)) }
             },
             buttonText = "Sign In",
             isEnabled = isInputValid
@@ -128,14 +133,18 @@ fun SignInScreen(
     when (state) {
         is UiState.Success -> {
             navigateToHome()
-            event(AuthEvent.ResetState)
+            LaunchedEffect(Unit){
+                event(AuthEvent.ResetState)
+            }
         }
 
         is UiState.Error -> {
             load = false
             val context = LocalContext.current
             Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-            event(AuthEvent.ResetState)
+            LaunchedEffect(Unit){
+                event(AuthEvent.ResetState)
+            }
         }
 
         else -> {

@@ -21,12 +21,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.aspald.aspald.R
+import com.aspald.aspald.data.model.Report
+import com.aspald.aspald.presentation.aspald_navigator.components.AspaldBottomNavigation
+import com.aspald.aspald.presentation.aspald_navigator.components.BottomNavigationItem
 import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.common.RequestPermissionScreen
 import com.aspald.aspald.presentation.home.HomeScreen
 import com.aspald.aspald.presentation.navgraph.Route
-import com.aspald.aspald.presentation.aspald_navigator.components.AspaldBottomNavigation
-import com.aspald.aspald.presentation.aspald_navigator.components.BottomNavigationItem
 import com.aspald.aspald.presentation.profile.ProfileEvent
 import com.aspald.aspald.presentation.profile.ProfileScreen
 import com.aspald.aspald.presentation.profile.ProfileViewModel
@@ -34,9 +35,8 @@ import com.aspald.aspald.presentation.profile.account.AccountScreen
 import com.aspald.aspald.presentation.profile.history.HistoryScreen
 import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
 import com.aspald.aspald.presentation.report.ReportScreen
-import com.aspald.aspald.utils.SetStatusBar
 import com.aspald.aspald.utils.MapState
-import com.aspald.aspald.utils.UiState
+import com.aspald.aspald.utils.SetStatusBar
 import com.aspald.aspald.utils.centerOnLocation
 import com.aspald.aspald.utils.navigateProfile
 import com.aspald.aspald.utils.navigateToTab
@@ -47,7 +47,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun AspaldNavigator(
     uiState: MapState,
     onRequestPermission: () -> Unit,
-    onLogOut: () -> Unit
+    onLogOut: () -> Unit,
+    reports: List<Report>
 ) {
     val navController = rememberNavController()
     val backStackState = navController.currentBackStackEntryAsState().value
@@ -72,6 +73,7 @@ fun AspaldNavigator(
         isBottomBarVisible,
         selectedItem,
         navController,
+        reports,
         uiState,
         onRequestPermission,
         onLogOut
@@ -84,6 +86,7 @@ fun SetNavigation(
     bottomBarVisible: Boolean,
     selectedItem: Int,
     navController: NavHostController,
+    reports: List<Report>,
     uiState: MapState,
     onRequestPermission: () -> Unit,
     onLogOut: () -> Unit
@@ -136,6 +139,7 @@ fun SetNavigation(
                             HomeScreen(
                                 currentPosition = LatLng(currentLoc.latitude, currentLoc.longitude),
                                 cameraState = cameraState,
+                                reports = reports,
                                 onSearch = {
                                     navigateToTab(
                                         navController,
@@ -154,11 +158,11 @@ fun SetNavigation(
             }
             composable(route = Route.ProfileNavigator.route) {
                 val viewModel: ProfileViewModel = hiltViewModel()
-                val state = viewModel.state.collectAsState()
                 ProfileScreen(
+                    user = viewModel.user.collectAsState().value,
                     navigate = { route ->
                         if (route == "Logout") {
-                            logOut(event = viewModel::onEvent, state = state.value, onLogOut = onLogOut)
+                            logOut(event = viewModel::onEvent, onLogOut = onLogOut)
                             return@ProfileScreen
                         }
                         navigateProfile(navController, route)
@@ -169,14 +173,20 @@ fun SetNavigation(
 
             }
             composable(route = Route.AccountScreen.route) {
+                val viewModel: ProfileViewModel = hiltViewModel()
+                val user = viewModel.user.collectAsState()
                 AccountScreen(
+                    user = user.value,
                     onBackClick = { navController.navigateUp() }
                 )
             }
             composable(
                 route = Route.ProfileSettingScreen.route
             ) {
+                val viewModel: ProfileViewModel = hiltViewModel()
+                val user = viewModel.user.collectAsState()
                 ProfileEditScreen(
+                    user = user.value,
                     onBackClick = { navController.navigateUp() }
                 )
             }
@@ -186,11 +196,6 @@ fun SetNavigation(
                 HistoryScreen(
                     onBackClick = { navController.navigateUp() }
                 )
-            }
-            composable(
-                route = Route.SettingsScreen.route
-            ) {
-
             }
             composable(
                 route = Route.AboutScreen.route
@@ -222,15 +227,8 @@ fun onItemClicked(navController: NavController, index: Int) {
 
 fun logOut(
     event: (ProfileEvent) -> Unit,
-    state: UiState<String>,
     onLogOut: () -> Unit
 ) {
     event(ProfileEvent.LogOut)
-    when(state) {
-        is UiState.Success -> {
-            onLogOut()
-        }
-
-        else -> {}
-    }
+    onLogOut()
 }
