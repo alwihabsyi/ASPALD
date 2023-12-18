@@ -3,6 +3,7 @@ package com.aspald.aspald.di
 import android.content.Context
 import com.aspald.aspald.data.api.ApiServices
 import com.aspald.aspald.data.repository.AuthRepository
+import com.aspald.aspald.data.repository.ReportRepository
 import com.aspald.aspald.utils.Constants.BASE_URL
 import com.aspald.aspald.utils.Constants.client
 import com.aspald.aspald.utils.LocationService
@@ -59,4 +60,10 @@ object AppModule {
         apiServices: ApiServices,
         userPreferences: UserPreferences
     ): AuthRepository = AuthRepository(apiServices, userPreferences)
+
+    @Provides
+    @Singleton
+    fun provideReportRepository(
+        apiServices: ApiServices
+    ): ReportRepository = ReportRepository(apiServices)
 }

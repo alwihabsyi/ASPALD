@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aspald.aspald.data.repository.ReportRepository
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.utils.GetLocationUseCase
 import com.aspald.aspald.utils.PermissionEvent
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getLocationUseCase: GetLocationUseCase, auth: FirebaseAuth
+    private val getLocationUseCase: GetLocationUseCase, auth: FirebaseAuth,
+    private val reportRepository: ReportRepository
 ) : ViewModel() {
     private val _state: MutableStateFlow<MapState> = MutableStateFlow(MapState.Loading)
     val state = _state.asStateFlow()

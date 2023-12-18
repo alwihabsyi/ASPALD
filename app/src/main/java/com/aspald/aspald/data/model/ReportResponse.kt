@@ -9,7 +9,7 @@ data class GetReportResponse(
     @field:SerializedName("message")
     val message: String,
     @field:SerializedName("listReport")
-    val listRepost: List<Report>
+    val listReport: List<Report>
 )
 
 data class Report(

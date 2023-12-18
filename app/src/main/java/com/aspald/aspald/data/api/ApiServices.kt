@@ -12,16 +12,16 @@ import retrofit2.http.*
 interface ApiServices {
 
     @GET("getReport")
-    fun getReport(): Response<GetReportResponse>
+    suspend fun getReport(): Response<GetReportResponse>
 
     @GET("getReportById")
-    fun getReportById(userId: String): Response<GetReportResponse>
+    suspend fun getReportById(userId: String): Response<GetReportResponse>
 
     @POST("login")
     suspend fun signIn(@Body request: SignInRequest) : Response<SignInResponse>
 
     @POST("register")
-    fun signUp(@Body request: SignUpRequest) : Response<PostResponse>
+    suspend fun signUp(@Body request: SignUpRequest) : Response<PostResponse>
 
     @POST("postReport")
     fun postReport(@Body request: ReportRequest): Response<PostResponse>
