@@ -1,6 +1,10 @@
 package com.aspald.aspald.presentation.report
 
+import android.Manifest
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,9 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,19 +43,33 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import com.aspald.aspald.BuildConfig
 import com.aspald.aspald.R
 import com.aspald.aspald.presentation.common.AspaldTopBar
+import com.aspald.aspald.presentation.report.components.ConfirmButton
+import com.aspald.aspald.presentation.report.components.MapCard
 import com.aspald.aspald.presentation.report.components.PhotoCard
 import com.aspald.aspald.ui.theme.AspaldOrange
 import com.aspald.aspald.ui.theme.AspaldYellow
+import com.aspald.aspald.utils.centerOnLocation
+import com.aspald.aspald.utils.checkCameraPermission
+import com.aspald.aspald.utils.createImageFile
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import kotlinx.coroutines.launch
+import java.util.Objects
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportScreen(
+    currentPosition: LatLng,
+    cameraState: CameraPositionState,
     onBackClick: () -> Unit
 ) {
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -135,7 +151,11 @@ fun ReportScreen(
                         disabledBorderColor = AspaldYellow
                     ),
                     trailingIcon = {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                cameraState.centerOnLocation(currentPosition)
+                            }
+                        }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_point),
                                 contentDescription = null,
@@ -146,44 +166,11 @@ fun ReportScreen(
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
-
-                Card(
-                    modifier = Modifier
-                        .heightIn(100.dp, 150.dp)
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(30.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Button(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(10.dp),
-                            shape = RoundedCornerShape(50.dp),
-                            onClick = { },
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = AspaldYellow
-                            )
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_maps),
-                                contentDescription = null,
-                                tint = Color.Black
-                            )
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = stringResource(id = R.string.pin_location_point),
-                                fontFamily = FontFamily(Font(R.font.poppins_semibold)),
-                                fontSize = 10.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                }
-
+                MapCard(
+                    cameraState = cameraState,
+                    currentPosition = currentPosition
+                )
                 Spacer(modifier = Modifier.height(15.dp))
-
                 Text(
                     text = stringResource(id = R.string.road_photos),
                     fontFamily = FontFamily(Font(R.font.poppins_semibold, FontWeight.SemiBold)),
@@ -195,44 +182,65 @@ fun ReportScreen(
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
-
                 Spacer(modifier = Modifier.height(15.dp))
-
-                Row {
-                    val context = LocalContext.current
-                    var bitmap by remember { mutableStateOf(false) }
-                    PhotoCard {
-                        Toast.makeText(context, "Ambil Foto", Toast.LENGTH_SHORT).show()
-                        bitmap = true
-                    }
-                    if (bitmap) {
-                        Spacer(modifier = Modifier.width(10.dp))
-                        PhotoCard {
-                            Toast.makeText(context, "Foto Baru", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
+                Photo()
             }
         }
 
         // TODO: Finish OnReport Click Function
-        Button(
-            onClick = { },
+        ConfirmButton(
             modifier = Modifier
                 .heightIn(70.dp, 90.dp)
                 .fillMaxWidth()
                 .padding(horizontal = 40.dp, vertical = 10.dp)
                 .align(Alignment.BottomCenter),
-            shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = AspaldYellow
-            )
-        ) {
-            Text(
-                text = "Confirm",
-                fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium)),
-                fontSize = 18.sp
-            )
+            onClick = {  }
+        )
+    }
+}
+
+@Composable
+fun Photo() {
+    val context = LocalContext.current
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        BuildConfig.APPLICATION_ID + ".provider", file
+    )
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            capturedImageUri = uri
+        }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Row {
+        PhotoCard {
+            if (checkCameraPermission(context)) {
+                cameraLauncher.launch(uri)
+            }else {
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+        if (capturedImageUri.path?.isNotEmpty() == true) {
+            Spacer(modifier = Modifier.width(10.dp))
+            PhotoCard(
+                imageUri = capturedImageUri
+            ) {
+
+            }
         }
     }
 }

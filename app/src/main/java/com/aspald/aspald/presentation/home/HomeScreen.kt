@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,16 +65,16 @@ fun HomeScreen(
             currentPosition = currentPosition,
             report = reports
         )
-        SearchBar(
-            modifier = Modifier
-                .padding(horizontal = Dimens.MediumPadding1, vertical = Dimens.MediumPadding2)
-                .align(Alignment.TopCenter),
+        SearchBar(modifier = Modifier
+            .padding(
+                horizontal = Dimens.MediumPadding1, vertical = Dimens.MediumPadding2
+            )
+            .align(Alignment.TopCenter),
             text = "",
             readOnly = true,
             onValueChange = {},
             onClick = onSearch,
-            onSearch = {}
-        )
+            onSearch = {})
 
         var expanded by remember { mutableStateOf(false) }
         Column(
@@ -94,18 +95,16 @@ fun HomeScreen(
                     containerColor = AspaldYellow
                 )
             ) {
-                if (!expanded)
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_keyboard_arrow_up),
-                        contentDescription = null,
-                        tint = AspaldWhite
-                    )
-                else
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_keyboard_arrow_down),
-                        contentDescription = null,
-                        tint = AspaldWhite
-                    )
+                if (!expanded) Icon(
+                    painter = painterResource(id = R.drawable.ic_keyboard_arrow_up),
+                    contentDescription = null,
+                    tint = AspaldWhite
+                )
+                else Icon(
+                    painter = painterResource(id = R.drawable.ic_keyboard_arrow_down),
+                    contentDescription = null,
+                    tint = AspaldWhite
+                )
             }
             Spacer(modifier = Modifier.height(10.dp))
             AnimatedVisibility(
@@ -113,17 +112,17 @@ fun HomeScreen(
                 enter = expandVertically(tween(500)),
                 exit = shrinkVertically(tween(500))
             ) {
+                val descriptionMaxLength = 10
+                val ellipsis = "..."
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(3) {
-                        CardJalanRusak(
-                            imageUrl = "https://images.hukumonline.com/frontend/lt5a954764bab1a/lt5a954d70cd9dd.jpg",
-                            title = "Jl. Jeglongan Sewu KM 69",
-                            description = "Jalan rusak parah wir",
-                            onDirectionClick = {  },
-                            onShareClick = {  }
-                        )
+                    items(reports, key = { it.id }) {
+                        CardJalanRusak(imageUrl = it.photoUrl,
+                            title = it.name,
+                            description = it.description.take(descriptionMaxLength - ellipsis.length) + ellipsis,
+                            onDirectionClick = { },
+                            onShareClick = { })
                     }
                 }
             }
@@ -142,8 +141,7 @@ fun HomeScreen(
                     coroutineScope.launch {
                         cameraState.centerOnLocation(currentPosition)
                     }
-                },
-                icon = R.drawable.ic_center_map
+                }, icon = R.drawable.ic_center_map
             )
         }
     }

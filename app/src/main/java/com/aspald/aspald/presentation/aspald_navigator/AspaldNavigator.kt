@@ -98,6 +98,9 @@ fun SetNavigation(
             BottomNavigationItem(icon = R.drawable.ic_profile, text = "Profile")
         )
     }
+    var currentLoc = LatLng(0.0, 0.0)
+    val cameraState = rememberCameraPositionState()
+    val reportCameraState = rememberCameraPositionState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -128,11 +131,10 @@ fun SetNavigation(
                         }
 
                         is MapState.Success -> {
-                            val currentLoc = LatLng(
+                            currentLoc = LatLng(
                                 location?.latitude ?: 0.0,
                                 location?.longitude ?: 0.0
                             )
-                            val cameraState = rememberCameraPositionState()
                             LaunchedEffect(key1 = currentLoc) {
                                 cameraState.centerOnLocation(currentLoc)
                             }
@@ -152,7 +154,13 @@ fun SetNavigation(
                 }
             }
             composable(route = Route.ReportScreen.route) {
+                LaunchedEffect(key1 = currentLoc) {
+                    reportCameraState.centerOnLocation(currentLoc)
+                }
+                val position = LatLng(currentLoc.latitude, currentLoc.longitude)
                 ReportScreen(
+                    currentPosition = position,
+                    cameraState = reportCameraState,
                     onBackClick = { navController.navigateUp() }
                 )
             }

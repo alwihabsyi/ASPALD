@@ -5,8 +5,8 @@ import com.aspald.aspald.data.model.Report
 import com.aspald.aspald.data.remote.ApiServices
 import com.aspald.aspald.utils.UiState
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.HttpException
 
@@ -16,7 +16,7 @@ class ReportRepository(
     private val _reportStateFlow = MutableStateFlow<UiState<List<Report>>>(UiState.Loading())
     private val reportState = _reportStateFlow.asStateFlow()
 
-    suspend fun getAllReport(): StateFlow<UiState<List<Report>>> {
+    suspend fun getAllReport(): Flow<UiState<List<Report>>> {
         try {
             val client = apiServices.getReport()
             if (client.isSuccessful) {
@@ -36,7 +36,7 @@ class ReportRepository(
         return reportState
     }
 
-    suspend fun getReportById(id: String): StateFlow<UiState<List<Report>>> {
+    suspend fun getReportById(id: String): Flow<UiState<List<Report>>> {
         try {
             val client = apiServices.getReportById(id)
             if (client.isSuccessful) {

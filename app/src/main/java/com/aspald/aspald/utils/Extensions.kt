@@ -1,6 +1,7 @@
 package com.aspald.aspald.utils
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -38,6 +39,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.regex.Pattern
 
 fun Context.hasLocationPermission(): Boolean {
@@ -92,6 +96,25 @@ suspend fun CameraPositionState.centerOnLocation(
     ),
     durationMs = 1500
 )
+
+fun checkCameraPermission(context: Context): Boolean {
+    val permissionCheckResult =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+    // Request a permission
+    return permissionCheckResult == PackageManager.PERMISSION_GRANTED
+}
+
+@SuppressLint("SimpleDateFormat")
+fun Context.createImageFile(): File {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val image = File.createTempFile(
+        imageFileName,
+        ".jpg",
+        externalCacheDir
+    )
+    return image
+}
 
 fun bitmapDescriptorFromVector(
     context: Context,

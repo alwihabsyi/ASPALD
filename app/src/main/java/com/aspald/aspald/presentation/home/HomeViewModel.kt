@@ -47,8 +47,8 @@ class HomeViewModel @Inject constructor(
                     getLocationUseCase.invoke().collect {
                         _state.value = MapState.Success(it)
                     }
-                    getAllReports()
                 }
+                getAllReports()
             }
 
             PermissionEvent.Revoked -> {
@@ -57,7 +57,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getAllReports() {
+    private fun getAllReports() {
         viewModelScope.launch {
             reportRepository.getAllReport().collect {
                 when(it){
