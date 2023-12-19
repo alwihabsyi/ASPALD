@@ -17,11 +17,13 @@ import com.aspald.aspald.ui.theme.AspaldYellow
 @Composable
 fun ConfirmButton(
     modifier: Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isEnabled: Boolean
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
+        enabled = isEnabled,
         shape = RoundedCornerShape(15.dp),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = AspaldYellow

@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
                 )
             )
             val uiState by viewModel.state.collectAsStateWithLifecycle()
-            val reports by viewModel.reports.collectAsStateWithLifecycle()
+            val reports by viewModel.reports.collectAsState()
             ASPALDTheme {
                 LaunchedEffect(!hasLocationPermission()) {
                     permissionState.launchMultiplePermissionRequest()

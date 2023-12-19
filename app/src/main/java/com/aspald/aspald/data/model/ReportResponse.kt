@@ -1,6 +1,9 @@
 package com.aspald.aspald.data.model
 
 import com.google.gson.annotations.SerializedName
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.Part
 import java.util.Date
 
 data class GetReportResponse(
@@ -32,16 +35,8 @@ data class Report(
 )
 
 data class ReportRequest(
-    @field:SerializedName("name")
-    val name: String,
-    @field:SerializedName("description")
-    val description: String,
-    @field:SerializedName("tipe_kerusakan")
-    val tipeKerusakan: String,
-    @field:SerializedName("photoUrl")
-    val photoUrl: String,
-    @field:SerializedName("lat")
-    val lat: Float,
-    @field:SerializedName("lon")
-    val lon: Float
+    @Part val image: MultipartBody.Part,
+    @Part("description") val description: RequestBody,
+    @Part("lat") val lat: RequestBody,
+    @Part("lon") val lon: RequestBody
 )

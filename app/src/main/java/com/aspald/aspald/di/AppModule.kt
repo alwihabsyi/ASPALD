@@ -1,6 +1,7 @@
 package com.aspald.aspald.di
 
 import android.content.Context
+import android.location.Geocoder
 import com.aspald.aspald.data.Preferences
 import com.aspald.aspald.data.remote.ApiServices
 import com.aspald.aspald.data.repository.AuthRepository
@@ -11,9 +12,6 @@ import com.aspald.aspald.utils.LocationService
 import com.aspald.aspald.utils.LocationServiceInterface
 import com.aspald.aspald.utils.getInterceptor
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.firestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.Locale
 import javax.inject.Singleton
 
 @Module
@@ -38,11 +37,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseAuth() = FirebaseAuth.getInstance()
-
-    @Provides
-    @Singleton
-    fun provideFirestore() = Firebase.firestore
+    fun provideGeoCoder(
+        @ApplicationContext context: Context
+    ): Geocoder = Geocoder(context, Locale.getDefault())
 
     @Provides
     @Singleton

@@ -23,6 +23,7 @@ interface ApiServices {
     @POST("api/v1/auth/register")
     suspend fun signUp(@Body request: SignUpRequest) : Response<String>
 
+    @Multipart
     @POST("postReport")
-    fun postReport(@Body request: ReportRequest): Response<PostResponse>
+    suspend fun postReport(@Body request: ReportRequest): Response<PostResponse>
 }

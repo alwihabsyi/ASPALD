@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -35,6 +36,7 @@ import com.aspald.aspald.presentation.profile.account.AccountScreen
 import com.aspald.aspald.presentation.profile.history.HistoryScreen
 import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
 import com.aspald.aspald.presentation.report.ReportScreen
+import com.aspald.aspald.presentation.report.ReportViewModel
 import com.aspald.aspald.utils.MapState
 import com.aspald.aspald.utils.SetStatusBar
 import com.aspald.aspald.utils.centerOnLocation
@@ -98,9 +100,8 @@ fun SetNavigation(
             BottomNavigationItem(icon = R.drawable.ic_profile, text = "Profile")
         )
     }
-    var currentLoc = LatLng(0.0, 0.0)
+    var currentLoc: LatLng
     val cameraState = rememberCameraPositionState()
-    val reportCameraState = rememberCameraPositionState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -154,15 +155,15 @@ fun SetNavigation(
                 }
             }
             composable(route = Route.ReportScreen.route) {
-                LaunchedEffect(key1 = currentLoc) {
-                    reportCameraState.centerOnLocation(currentLoc)
-                }
-                val position = LatLng(currentLoc.latitude, currentLoc.longitude)
+                val viewModel: ReportViewModel = hiltViewModel()
+                val context = LocalContext.current
                 ReportScreen(
-                    currentPosition = position,
-                    cameraState = reportCameraState,
-                    onBackClick = { navController.navigateUp() }
-                )
+                    location = viewModel.currentLocation.collectAsState().value,
+                    state = viewModel.postReportState.collectAsState().value,
+                    address = viewModel.address.collectAsState().value,
+                    event = viewModel::onEvent,
+                    context = context
+                ) { navController.navigateUp() }
             }
             composable(route = Route.ProfileNavigator.route) {
                 val viewModel: ProfileViewModel = hiltViewModel()

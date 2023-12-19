@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
                         _state.value = MapState.Success(it)
                     }
                 }
-                getAllReports()
+                //TODO: getAllReports()
             }
 
             PermissionEvent.Revoked -> {

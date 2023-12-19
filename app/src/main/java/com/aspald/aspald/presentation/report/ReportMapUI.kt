@@ -27,22 +27,28 @@ fun ReportMapUi(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraState,
         properties = MapProperties(
-            isMyLocationEnabled = true, mapType = MapType.NORMAL, isTrafficEnabled = true
+            isMyLocationEnabled = true,
+            mapType = MapType.NORMAL,
+            isTrafficEnabled = true
         ),
         uiSettings = MapUiSettings(
             compassEnabled = false,
             myLocationButtonEnabled = false,
+            indoorLevelPickerEnabled = false,
             zoomControlsEnabled = false,
+            zoomGesturesEnabled = false,
+            scrollGesturesEnabled = false,
+            scrollGesturesEnabledDuringRotateOrZoom = false,
+            tiltGesturesEnabled = false,
+            rotationGesturesEnabled = false
         )
     ) {
         Marker(
             state = MarkerState(position = marker),
-            title = "Your Position",
-            snippet = "Marker Description",
             onInfoWindowClick = {
                 Toast.makeText(context, it.position.toString(), Toast.LENGTH_SHORT).show()
             },
-            draggable = true,
+            draggable = false,
             icon = bitmapDescriptorFromVector(context, R.drawable.ic_map_point)
         )
     }

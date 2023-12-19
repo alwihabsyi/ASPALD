@@ -1,6 +1,7 @@
 package com.aspald.aspald.presentation.report
 
 import android.Manifest
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,10 +28,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,30 +47,105 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.aspald.aspald.BuildConfig
 import com.aspald.aspald.R
+import com.aspald.aspald.data.model.ReportRequest
 import com.aspald.aspald.presentation.common.AspaldTopBar
+import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.report.components.ConfirmButton
 import com.aspald.aspald.presentation.report.components.MapCard
 import com.aspald.aspald.presentation.report.components.PhotoCard
 import com.aspald.aspald.ui.theme.AspaldOrange
 import com.aspald.aspald.ui.theme.AspaldYellow
+import com.aspald.aspald.utils.MapState
+import com.aspald.aspald.utils.UiState
 import com.aspald.aspald.utils.centerOnLocation
 import com.aspald.aspald.utils.checkCameraPermission
 import com.aspald.aspald.utils.createImageFile
+import com.aspald.aspald.utils.reduceFileImage
+import com.aspald.aspald.utils.uriToFile
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
-import kotlinx.coroutines.launch
+import com.google.maps.android.compose.rememberCameraPositionState
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Objects
+
+@Composable
+fun ReportScreen(
+    location: MapState,
+    context: Context,
+    address: String,
+    state: UiState<String>,
+    event: (ReportEvent) -> Unit,
+    onBackClick: () -> Unit
+) {
+    with(location) {
+        when (this) {
+            is MapState.Loading -> {
+                LoadingScreen()
+            }
+
+            is MapState.Success -> {
+                val currentLoc = LatLng(
+                    this.location?.latitude ?: 0.0,
+                    this.location?.longitude ?: 0.0
+                )
+                val reportCameraState = rememberCameraPositionState()
+                LaunchedEffect(key1 = null) {
+                    reportCameraState.centerOnLocation(currentLoc)
+                    event(ReportEvent.GetAddress(currentLoc.latitude, currentLoc.longitude))
+                }
+                ReportContent(
+                    context = context,
+                    currentLocation = currentLoc,
+                    address = address,
+                    reportCameraState = reportCameraState,
+                    onBackClick = onBackClick,
+                    event = event
+                )
+            }
+
+            else -> {}
+        }
+    }
+    with(state) {
+        when(this) {
+            is UiState.Error -> {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                LaunchedEffect(Unit) {
+                    event(ReportEvent.ResetState)
+                }
+            }
+            is UiState.Loading -> {
+                LoadingScreen()
+            }
+            is UiState.Success -> {
+                Toast.makeText(context, data, Toast.LENGTH_SHORT).show()
+                onBackClick()
+                LaunchedEffect(Unit) {
+                    event(ReportEvent.ResetState)
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportScreen(
-    currentPosition: LatLng,
-    cameraState: CameraPositionState,
-    onBackClick: () -> Unit
+fun ReportContent(
+    context: Context,
+    currentLocation: LatLng,
+    reportCameraState: CameraPositionState,
+    onBackClick: () -> Unit,
+    address: String,
+    event: (ReportEvent) -> Unit
 ) {
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
 
     Box(
         modifier = Modifier
@@ -133,7 +209,7 @@ fun ReportScreen(
                     modifier = Modifier
                         .heightIn(50.dp, 100.dp)
                         .fillMaxWidth(),
-                    value = location,
+                    value = address,
                     onValueChange = { if (it.length < 100) location = it },
                     placeholder = {
                         Text(
@@ -142,6 +218,7 @@ fun ReportScreen(
                             fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium))
                         )
                     },
+                    enabled = false,
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         containerColor = Color.Transparent,
@@ -151,11 +228,7 @@ fun ReportScreen(
                         disabledBorderColor = AspaldYellow
                     ),
                     trailingIcon = {
-                        IconButton(onClick = {
-                            coroutineScope.launch {
-                                cameraState.centerOnLocation(currentPosition)
-                            }
-                        }) {
+                        IconButton(onClick = { }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_point),
                                 contentDescription = null,
@@ -167,8 +240,9 @@ fun ReportScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
                 MapCard(
-                    cameraState = cameraState,
-                    currentPosition = currentPosition
+                    cameraState = reportCameraState,
+                    currentPosition = currentLocation,
+                    context = context
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
@@ -183,24 +257,35 @@ fun ReportScreen(
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(15.dp))
-                Photo()
+                Photo(
+                    getImageUri = {
+                        capturedImageUri = it
+                    }
+                )
             }
         }
 
-        // TODO: Finish OnReport Click Function
         ConfirmButton(
             modifier = Modifier
                 .heightIn(70.dp, 90.dp)
                 .fillMaxWidth()
                 .padding(horizontal = 40.dp, vertical = 10.dp)
                 .align(Alignment.BottomCenter),
-            onClick = {  }
+            isEnabled = description.isNotEmpty() &&
+                    address.isNotEmpty() &&
+                    capturedImageUri != Uri.EMPTY &&
+                    currentLocation != LatLng(0.0, 0.0),
+            onClick = {
+                postReport(capturedImageUri, description, currentLocation, context, event = event)
+            }
         )
     }
 }
 
 @Composable
-fun Photo() {
+fun Photo(
+    getImageUri: (Uri) -> Unit
+) {
     val context = LocalContext.current
     val file = context.createImageFile()
     val uri = FileProvider.getUriForFile(
@@ -213,6 +298,7 @@ fun Photo() {
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
             capturedImageUri = uri
+            getImageUri(uri)
         }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -230,17 +316,47 @@ fun Photo() {
         PhotoCard {
             if (checkCameraPermission(context)) {
                 cameraLauncher.launch(uri)
-            }else {
+            } else {
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
         if (capturedImageUri.path?.isNotEmpty() == true) {
             Spacer(modifier = Modifier.width(10.dp))
             PhotoCard(
-                imageUri = capturedImageUri
-            ) {
-
-            }
+                imageUri = capturedImageUri,
+                onClick = {}
+            )
         }
     }
 }
+
+fun postReport(
+    capturedImageUri: Uri,
+    description: String,
+    currentLocation: LatLng,
+    context: Context,
+    event: (ReportEvent) -> Unit
+) {
+    val file = uriToFile(capturedImageUri, context)
+    val compressedFile = reduceFileImage(file)
+    val requestImageFile = compressedFile.asRequestBody("image/jpeg".toMediaType())
+    val imageMultipart: MultipartBody.Part = MultipartBody.Part.createFormData(
+        "image",
+        file.name,
+        requestImageFile
+    )
+    val descriptionCast = description.toRequestBody("text/plain".toMediaType())
+    val latitudeCast = currentLocation.latitude.toString().toRequestBody("text/plain".toMediaType())
+    val longitudeCast =
+        currentLocation.longitude.toString().toRequestBody("text/plain".toMediaType())
+
+    val postReportRequest = ReportRequest(
+        image = imageMultipart,
+        description = descriptionCast,
+        lat = latitudeCast,
+        lon = longitudeCast
+    )
+
+    event(ReportEvent.PostReport(postReportRequest))
+}
+

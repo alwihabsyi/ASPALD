@@ -35,6 +35,7 @@ fun MapUi(
             compassEnabled = false,
             myLocationButtonEnabled = false,
             zoomControlsEnabled = false,
+            mapToolbarEnabled = false
         )
     ) {
         Marker(
