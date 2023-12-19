@@ -3,8 +3,8 @@ package com.aspald.aspald.data.model
 import com.google.gson.annotations.SerializedName
 
 data class PostResponse(
-    @field:SerializedName("error")
-    val error: Boolean,
+    @field:SerializedName("success")
+    val success: Boolean,
 
     @field:SerializedName("message")
     val message: String

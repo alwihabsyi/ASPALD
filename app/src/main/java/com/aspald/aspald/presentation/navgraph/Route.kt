@@ -9,7 +9,9 @@ sealed class Route(
     data object ProfileNavigator: Route(route = "profileNavigator")
     data object ReportScreen: Route(route = "reportScreen")
     data object SearchScreen: Route(route = "searchScreen")
-    data object DetailScreen: Route(route = "detailScreen")
+    data object DetailScreen: Route(route = "detailScreen/{id}") {
+        fun createRoute(id: String) = "detailScreen/$id"
+    }
 
     // Auth
     data object AuthNavigator: Route(route = "authActivity")
@@ -20,6 +22,5 @@ sealed class Route(
     data object AccountScreen: Route(route = "accountScreen")
     data object ProfileSettingScreen: Route(route = "profileSettingScreen")
     data object HistoryScreen: Route(route = "historyScreen")
-    data object SettingsScreen: Route(route = "settingsScreen")
     data object AboutScreen: Route(route = "aboutScreen")
 }

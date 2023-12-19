@@ -15,6 +15,15 @@ data class GetReportResponse(
     val listReport: List<Report>
 )
 
+data class ReportDetailResponse(
+    @field:SerializedName("error")
+    val error: Boolean,
+    @field:SerializedName("message")
+    val message: String,
+    @field:SerializedName("report")
+    val report: Report
+)
+
 data class Report(
     @field:SerializedName("id")
     val id: String,
@@ -24,6 +33,8 @@ data class Report(
     val email: String,
     @field:SerializedName("description")
     val description: String,
+    @field:SerializedName("damageType")
+    val damageType: String,
     @field:SerializedName("photoUrl")
     val photoUrl: String,
     @field:SerializedName("createdAt")
@@ -32,11 +43,4 @@ data class Report(
     val lat: Double,
     @field:SerializedName("lon")
     val lon: Double
-)
-
-data class ReportRequest(
-    @Part val image: MultipartBody.Part,
-    @Part("description") val description: RequestBody,
-    @Part("lat") val lat: RequestBody,
-    @Part("lon") val lon: RequestBody
 )

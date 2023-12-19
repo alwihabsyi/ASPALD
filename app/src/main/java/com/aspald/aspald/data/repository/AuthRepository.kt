@@ -2,11 +2,12 @@ package com.aspald.aspald.data.repository
 
 import android.content.Context
 import com.aspald.aspald.data.Preferences
-import com.aspald.aspald.data.remote.ApiServices
 import com.aspald.aspald.data.model.PostResponse
 import com.aspald.aspald.data.model.SignInRequest
 import com.aspald.aspald.data.model.SignUpRequest
 import com.aspald.aspald.data.model.User
+import com.aspald.aspald.data.model.UserResponse
+import com.aspald.aspald.data.remote.ApiServices
 import com.aspald.aspald.utils.Constants
 import com.aspald.aspald.utils.UiState
 import com.google.gson.Gson
@@ -21,6 +22,8 @@ class AuthRepository(
 ) {
     private val _authFlow = MutableStateFlow<UiState<String>>(UiState.Loading())
     private val authState = _authFlow.asStateFlow()
+
+    private val _signedInUser = MutableStateFlow(UserResponse())
 
     suspend fun signUp(username: String, email: String, password: String): Flow<UiState<String>> {
         try {
@@ -89,14 +92,38 @@ class AuthRepository(
 
     fun getSignedInUser(): User {
         val sharedPref = Preferences.init(context, "session")
-        val email = sharedPref.getString(Constants.EMAIL, "")
+        val userId = sharedPref.getString(Constants.USER_ID, "")
         val name = sharedPref.getString(Constants.NAME, "")
+        val email = sharedPref.getString(Constants.EMAIL, "")
 
         return User(
+            id = userId,
             name = name,
             email = email
         )
     }
+
+//    suspend fun getSignedInUser(): Flow<UserResponse> {
+//        val sharedPref = Preferences.init(context, "session")
+//        val userId = sharedPref.getString(Constants.USER_ID, "")
+//        try {
+//            val client = apiServices.getUser(userId ?: "")
+//            if (client.isSuccessful) {
+//                client.body()?.let {
+//                    _signedInUser.value = it
+//                }
+//            }else {
+//                throw HttpException(client)
+//            }
+//        } catch (e: HttpException) {
+//            val jsonInString = e.response()?.errorBody()?.string()
+//            val errorBody = Gson().fromJson(jsonInString, PostResponse::class.java)
+//            val errorMessage = errorBody.message
+//            Log.e("HTTPERROR: ", errorMessage)
+//        }
+//
+//        return _signedInUser.asStateFlow()
+//    }
 
     fun logOut() {
         Preferences.logOut(context)

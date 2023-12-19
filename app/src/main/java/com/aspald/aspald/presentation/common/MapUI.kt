@@ -1,7 +1,6 @@
 package com.aspald.aspald.presentation.common
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,6 +21,7 @@ fun MapUi(
     context: Context,
     cameraState: CameraPositionState,
     currentPosition: LatLng,
+    onInfoWindowClick: (String) -> Unit,
     report: List<Report>
 ) {
     val marker = LatLng(currentPosition.latitude, currentPosition.longitude)
@@ -42,9 +42,7 @@ fun MapUi(
             state = MarkerState(position = marker),
             title = "Your Position",
             snippet = "Marker Description",
-            onInfoWindowClick = {
-                Toast.makeText(context, it.position.toString(), Toast.LENGTH_SHORT).show()
-            },
+            onInfoWindowClick = {},
             draggable = true,
             icon = bitmapDescriptorFromVector(context, R.drawable.ic_map_point)
         )
@@ -56,8 +54,8 @@ fun MapUi(
                 state = MarkerState(position = reportMarker),
                 title = it.name,
                 snippet = it.description.take(descriptionMaxLength - ellipsis.length) + ellipsis,
-                onInfoWindowClick = { marker ->
-                    Toast.makeText(context, marker.position.toString(), Toast.LENGTH_SHORT).show()
+                onInfoWindowClick = { _ ->
+                    onInfoWindowClick(it.id)
                 },
                 draggable = false,
                 icon = bitmapDescriptorFromVector(context, R.drawable.ic_map_point)

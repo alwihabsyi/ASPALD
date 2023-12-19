@@ -1,13 +1,11 @@
-package com.aspald.aspald.presentation.report
+package com.aspald.aspald.presentation.detail
 
 import android.location.Geocoder
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aspald.aspald.data.model.Report
 import com.aspald.aspald.data.repository.ReportRepository
-import com.aspald.aspald.utils.GetLocationUseCase
-import com.aspald.aspald.utils.MapState
 import com.aspald.aspald.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,57 +15,38 @@ import javax.inject.Inject
 
 @Suppress("DEPRECATION")
 @HiltViewModel
-class ReportViewModel @Inject constructor(
+class DetailViewModel @Inject constructor(
     private val geocoder: Geocoder,
-    private val getLocationUseCase: GetLocationUseCase,
     private val reportRepository: ReportRepository
 ): ViewModel() {
+    private val _report = MutableStateFlow<UiState<Report>>(UiState.Loading())
+    val report = _report.asStateFlow()
+
     private val _address = MutableStateFlow("")
     val address = _address.asStateFlow()
 
-    private val _currentLocation: MutableStateFlow<MapState> = MutableStateFlow(MapState.Loading)
-    val currentLocation = _currentLocation.asStateFlow()
-
-    private val _postReportState = MutableStateFlow<UiState<String>>(UiState.Loading())
-    val postReportState = _postReportState.asStateFlow()
-
-    init {
-        onEvent(ReportEvent.GetLocation)
-    }
-
-    fun onEvent(event: ReportEvent) {
+    fun onEvent(event: DetailEvent) {
         when (event) {
-            ReportEvent.ResetState -> {
+            DetailEvent.ResetState -> {
 
             }
-            is ReportEvent.GetAddress -> {
+            is DetailEvent.GetAddress -> {
                 getMarkerAddressDetails(event.lat, event.lng)
             }
-            is ReportEvent.GetLocation -> {
-                viewModelScope.launch {
-                    getLocationUseCase.invoke().collect {
-                        _currentLocation.value = MapState.Success(it)
-                    }
-                }
-            }
-            is ReportEvent.PostReport -> {
-                viewModelScope.launch {
-                    reportRepository.postReport(
-                        event.file,
-                        event.description,
-                        event.lat,
-                        event.lon
-                    ).collect {
-                        _postReportState.value = it
-                    }
-                }
+        }
+    }
+
+    fun getReport(id: String) {
+        viewModelScope.launch {
+            reportRepository.getReportById(id).collect {
+                _report.value = it
             }
         }
     }
 
     private fun getMarkerAddressDetails(lat: Double, long: Double) {
         try {
-            if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 geocoder.getFromLocation(
                     lat,
                     long,

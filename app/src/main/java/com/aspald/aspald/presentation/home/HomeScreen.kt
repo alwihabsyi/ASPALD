@@ -1,5 +1,6 @@
 package com.aspald.aspald.presentation.home
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -51,7 +52,8 @@ fun HomeScreen(
     onSearch: () -> Unit,
     currentPosition: LatLng,
     cameraState: CameraPositionState,
-    reports: List<Report>
+    reports: List<Report>,
+    onInfoWindowClick: (String) -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -63,7 +65,8 @@ fun HomeScreen(
             context = context,
             cameraState = cameraState,
             currentPosition = currentPosition,
-            report = reports
+            report = reports,
+            onInfoWindowClick = onInfoWindowClick
         )
         SearchBar(modifier = Modifier
             .padding(
@@ -112,8 +115,9 @@ fun HomeScreen(
                 enter = expandVertically(tween(500)),
                 exit = shrinkVertically(tween(500))
             ) {
-                val descriptionMaxLength = 10
+                val descriptionMaxLength = 40
                 val ellipsis = "..."
+                val message = "Hai! Ada jalan rusak nih di : "
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -121,8 +125,29 @@ fun HomeScreen(
                         CardJalanRusak(imageUrl = it.photoUrl,
                             title = it.name,
                             description = it.description.take(descriptionMaxLength - ellipsis.length) + ellipsis,
-                            onDirectionClick = { },
-                            onShareClick = { })
+                            onDirectionClick = {
+                                coroutineScope.launch {
+                                    cameraState.centerOnLocation(
+                                        LatLng(
+                                            it.lat,
+                                            it.lon
+                                        )
+                                    )
+                                }
+                            },
+                            onShareClick = {
+                                Intent(Intent.ACTION_SEND).also { intent ->
+                                    intent.putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        "$message https://maps.google.com/?ll=${it.lat},${it.lon}"
+                                    )
+                                    intent.type = "text/plain"
+                                    if (intent.resolveActivity(context.packageManager) != null) {
+                                        context.startActivity(intent)
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }

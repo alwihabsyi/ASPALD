@@ -1,6 +1,6 @@
 package com.aspald.aspald.presentation.profile.profileedit
 
-import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,42 +10,45 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.aspald.aspald.data.model.User
+import com.aspald.aspald.data.model.UserRequest
 import com.aspald.aspald.presentation.common.AspaldTopBar
 import com.aspald.aspald.presentation.common.IconLessTextField
+import com.aspald.aspald.presentation.common.LoadingScreen
+import com.aspald.aspald.presentation.profile.ProfileEvent
 import com.aspald.aspald.presentation.report.components.ConfirmButton
-import com.aspald.aspald.presentation.report.postReport
-import com.google.android.gms.maps.model.LatLng
+import com.aspald.aspald.utils.UiState
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
 fun ProfileEditScreen(
     user: User,
+    state: UiState<String>,
+    event: (ProfileEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
+    val context = LocalContext.current
     var isEditEnabled by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf(user.name) }
     var address by remember { mutableStateOf(user.address) }
+    var load by remember { mutableStateOf(false) }
 
     var dob = ""
     user.dateOfBirth?.let {
         dob = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(user.dateOfBirth)
     }
-
-    var ph = ""
-    user.phone?.let {
-        ph = it.toString()
-    }
-    var phone by remember { mutableStateOf(ph) }
+    var phone by remember { mutableStateOf(user.phone) }
 
     Column(
         modifier = Modifier
@@ -87,16 +90,13 @@ fun ProfileEditScreen(
             label = "Date of Birth",
             text = dob,
             onValueChange = { },
-            onEdit = {
-                isEditEnabled = !isEditEnabled
-            },
-            isEnabled = isEditEnabled,
+            isEnabled = false,
             onSearch = { }
         )
         Spacer(modifier = Modifier.height(25.dp))
         IconLessTextField(
             label = "Phone",
-            text = phone,
+            text = phone ?: "...",
             onValueChange = { phone = it },
             onEdit = {
                 isEditEnabled = !isEditEnabled
@@ -116,10 +116,48 @@ fun ProfileEditScreen(
                 .padding(horizontal = 40.dp, vertical = 10.dp),
             isEnabled = true,
             onClick = {
-                if (name != null && address != null && phone.isNotEmpty()) {
+                val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val text = "0000-00-00"
+                val date = formatter.parse(text)
+                if (name != null && address != null && phone != null) {
+                    val request = UserRequest(
+                        name,
+                        address,
+                        date,
+                        phone
+                    )
 
+                    load = true
+                    event(ProfileEvent.UpdateUser(user.id!!, request))
+                }else {
+                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 }
             }
         )
+    }
+
+    with(state) {
+        when (this) {
+            is UiState.Error -> {
+                load = false
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                LaunchedEffect(Unit) {
+                    event(ProfileEvent.ResetState)
+                }
+            }
+            is UiState.Success -> {
+                load = false
+                Toast.makeText(context, data, Toast.LENGTH_SHORT).show()
+                onBackClick()
+                LaunchedEffect(Unit) {
+                    event(ProfileEvent.ResetState)
+                }
+            }
+            else -> {
+                if (load) {
+                    LoadingScreen()
+                }
+            }
+        }
     }
 }

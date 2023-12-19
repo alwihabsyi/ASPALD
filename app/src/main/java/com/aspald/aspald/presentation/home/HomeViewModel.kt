@@ -38,6 +38,7 @@ class HomeViewModel @Inject constructor(
             startDestination =
                 if (authRepository.isUserSignedIn()) Route.HomeNavigator.route else Route.AuthNavigator.route
         }
+        getAllReports()
     }
 
     fun handle(event: PermissionEvent) {
@@ -48,7 +49,6 @@ class HomeViewModel @Inject constructor(
                         _state.value = MapState.Success(it)
                     }
                 }
-                //TODO: getAllReports()
             }
 
             PermissionEvent.Revoked -> {

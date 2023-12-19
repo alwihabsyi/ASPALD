@@ -6,6 +6,7 @@ import com.aspald.aspald.data.Preferences
 import com.aspald.aspald.data.remote.ApiServices
 import com.aspald.aspald.data.repository.AuthRepository
 import com.aspald.aspald.data.repository.ReportRepository
+import com.aspald.aspald.data.repository.UserRepository
 import com.aspald.aspald.utils.Constants
 import com.aspald.aspald.utils.Constants.BASE_URL
 import com.aspald.aspald.utils.LocationService
@@ -62,6 +63,12 @@ object AppModule {
     fun provideReportRepository(
         apiServices: ApiServices
     ): ReportRepository = ReportRepository(apiServices)
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        apiServices: ApiServices
+    ): UserRepository = UserRepository(apiServices)
 
     @Provides
     @Singleton

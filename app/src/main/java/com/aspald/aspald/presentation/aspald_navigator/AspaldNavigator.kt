@@ -17,16 +17,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.aspald.aspald.R
 import com.aspald.aspald.data.model.Report
 import com.aspald.aspald.presentation.aspald_navigator.components.AspaldBottomNavigation
 import com.aspald.aspald.presentation.aspald_navigator.components.BottomNavigationItem
 import com.aspald.aspald.presentation.common.LoadingScreen
 import com.aspald.aspald.presentation.common.RequestPermissionScreen
+import com.aspald.aspald.presentation.detail.DetailScreen
+import com.aspald.aspald.presentation.detail.DetailViewModel
 import com.aspald.aspald.presentation.home.HomeScreen
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.presentation.profile.ProfileEvent
@@ -37,10 +41,12 @@ import com.aspald.aspald.presentation.profile.history.HistoryScreen
 import com.aspald.aspald.presentation.profile.profileedit.ProfileEditScreen
 import com.aspald.aspald.presentation.report.ReportScreen
 import com.aspald.aspald.presentation.report.ReportViewModel
+import com.aspald.aspald.presentation.search.SearchScreen
 import com.aspald.aspald.utils.MapState
 import com.aspald.aspald.utils.SetStatusBar
 import com.aspald.aspald.utils.centerOnLocation
 import com.aspald.aspald.utils.navigateProfile
+import com.aspald.aspald.utils.navigateToDetail
 import com.aspald.aspald.utils.navigateToTab
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -148,6 +154,9 @@ fun SetNavigation(
                                         navController,
                                         Route.SearchScreen.route
                                     )
+                                },
+                                onInfoWindowClick = { reportId ->
+                                    navigateToDetail(navController, reportId)
                                 }
                             )
                         }
@@ -179,7 +188,7 @@ fun SetNavigation(
                 )
             }
             composable(route = Route.SearchScreen.route) {
-
+                SearchScreen()
             }
             composable(route = Route.AccountScreen.route) {
                 val viewModel: ProfileViewModel = hiltViewModel()
@@ -194,8 +203,11 @@ fun SetNavigation(
             ) {
                 val viewModel: ProfileViewModel = hiltViewModel()
                 val user = viewModel.user.collectAsState()
+                val state = viewModel.userState.collectAsState()
                 ProfileEditScreen(
                     user = user.value,
+                    state = state.value,
+                    event = viewModel::onEvent,
                     onBackClick = { navController.navigateUp() }
                 )
             }
@@ -210,6 +222,22 @@ fun SetNavigation(
                 route = Route.AboutScreen.route
             ) {
 
+            }
+            composable(
+                route = Route.DetailScreen.route,
+                arguments = listOf(navArgument("id") { type = NavType.StringType })
+            ) { entry ->
+                val id = entry.arguments?.getString("id") ?: ""
+                val viewModel: DetailViewModel = hiltViewModel()
+                viewModel.getReport(id)
+                val report = viewModel.report.collectAsState()
+                val address = viewModel.address.collectAsState().value
+                DetailScreen(
+                    report = report.value,
+                    address = address,
+                    onBackClick = { navController.navigateUp() },
+                    event = viewModel::onEvent
+                )
             }
         }
     }

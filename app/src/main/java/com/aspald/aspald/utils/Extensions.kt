@@ -242,6 +242,10 @@ fun navigateToTab(navController: NavController, route: String) {
     }
 }
 
+fun navigateToDetail(navController: NavController, id: String) {
+    navController.navigate(Route.DetailScreen.createRoute(id))
+}
+
 fun navigateProfile(navController: NavController, route: String) {
     navController.navigate(route) {
         popUpTo(Route.ProfileNavigator.route) {
