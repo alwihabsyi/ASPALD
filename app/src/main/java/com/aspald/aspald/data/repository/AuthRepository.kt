@@ -62,6 +62,7 @@ class AuthRepository(
                         it.token,
                         it.name,
                         email,
+                        it.userId,
                         context
                     )
                 }

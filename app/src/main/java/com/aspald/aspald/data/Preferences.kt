@@ -6,6 +6,7 @@ import com.aspald.aspald.utils.Constants.EMAIL
 import com.aspald.aspald.utils.Constants.NAME
 import com.aspald.aspald.utils.Constants.SESSION
 import com.aspald.aspald.utils.Constants.TOKEN
+import com.aspald.aspald.utils.Constants.USER_ID
 
 object Preferences {
 
@@ -18,11 +19,12 @@ object Preferences {
         return sharedPref.edit()
     }
 
-    fun saveToken(token: String, name: String, email: String, context: Context) {
+    fun saveToken(token: String, name: String, email: String, userId: String, context: Context) {
         val editor = preferenceEditor(context)
         editor.putString(TOKEN, token)
         editor.putString(NAME, name)
         editor.putString(EMAIL, email)
+        editor.putString(USER_ID, userId)
         editor.apply()
     }
 
@@ -31,6 +33,7 @@ object Preferences {
         editor.remove(TOKEN)
         editor.remove(NAME)
         editor.remove(EMAIL)
+        editor.remove(USER_ID)
         editor.remove("status")
         editor.apply()
     }

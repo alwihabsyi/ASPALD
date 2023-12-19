@@ -11,7 +11,7 @@ import retrofit2.http.*
 
 interface ApiServices {
 
-    @GET("api/v1/reports")
+    @GET("api/v1/reports/reports")
     suspend fun getReport(): Response<GetReportResponse>
 
     @GET("getReportById")
