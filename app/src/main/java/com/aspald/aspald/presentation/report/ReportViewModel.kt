@@ -38,7 +38,7 @@ class ReportViewModel @Inject constructor(
     fun onEvent(event: ReportEvent) {
         when (event) {
             ReportEvent.ResetState -> {
-
+                _postReportState.value = UiState.Loading()
             }
             is ReportEvent.GetAddress -> {
                 getMarkerAddressDetails(event.lat, event.lng)

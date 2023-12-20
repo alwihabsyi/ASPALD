@@ -22,6 +22,8 @@ class ReportRepository(
     private val _reportStateFlow = MutableStateFlow<UiState<List<Report>>>(UiState.Loading())
     private val reportState = _reportStateFlow.asStateFlow()
 
+    private val _userReport = MutableStateFlow<UiState<List<Report>>>(UiState.Loading())
+
     private val _detailReportStateFlow = MutableStateFlow<UiState<Report>>(UiState.Loading())
 
     private val _postReportState = MutableStateFlow<UiState<String>>(UiState.Loading())
@@ -95,5 +97,25 @@ class ReportRepository(
             _postReportState.value = UiState.Error(e.localizedMessage ?: e.message())
         }
         return postReportState
+    }
+
+    suspend fun getUserReports(userId: String): Flow<UiState<List<Report>>> {
+        try {
+            val client = apiServices.getUserReport(userId)
+            if (client.isSuccessful) {
+                val listReport = client.body()?.listReport
+                listReport?.let {
+                    _userReport.value = UiState.Success(it)
+                }
+            } else {
+                throw HttpException(client)
+            }
+        } catch (e: HttpException) {
+            val jsonInString = e.response()?.errorBody()?.string()
+            val errorBody = Gson().fromJson(jsonInString, PostResponse::class.java)
+            val errorMessage = errorBody.message
+            _userReport.value = UiState.Error(errorMessage)
+        }
+        return _userReport.asStateFlow()
     }
 }

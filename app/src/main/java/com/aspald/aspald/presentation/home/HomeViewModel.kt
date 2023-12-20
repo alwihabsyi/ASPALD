@@ -57,7 +57,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getAllReports() {
+    fun getAllReports() {
         viewModelScope.launch {
             reportRepository.getAllReport().collect {
                 when(it){

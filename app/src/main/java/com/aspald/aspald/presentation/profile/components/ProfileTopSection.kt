@@ -121,7 +121,7 @@ fun ProfileTopSection(
                         tint = AspaldYellow
                     )
                     Text(
-                        text = "0 Reports Made",
+                        text = "2 Reports Made",
                         style = MaterialTheme.typography.bodyMedium,
                         fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium))
                     )
@@ -140,7 +140,7 @@ fun ProfileTopSection(
                         tint = AspaldYellow
                     )
                     Text(
-                        text = "0 Reports Accepted",
+                        text = "2 Reports Accepted",
                         style = MaterialTheme.typography.bodyMedium,
                         fontFamily = FontFamily(Font(R.font.poppins_medium, FontWeight.Medium))
                     )

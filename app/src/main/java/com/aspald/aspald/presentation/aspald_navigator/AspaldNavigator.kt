@@ -32,6 +32,7 @@ import com.aspald.aspald.presentation.common.RequestPermissionScreen
 import com.aspald.aspald.presentation.detail.DetailScreen
 import com.aspald.aspald.presentation.detail.DetailViewModel
 import com.aspald.aspald.presentation.home.HomeScreen
+import com.aspald.aspald.presentation.home.HomeViewModel
 import com.aspald.aspald.presentation.navgraph.Route
 import com.aspald.aspald.presentation.profile.ProfileEvent
 import com.aspald.aspald.presentation.profile.ProfileScreen
@@ -145,6 +146,8 @@ fun SetNavigation(
                             LaunchedEffect(key1 = currentLoc) {
                                 cameraState.centerOnLocation(currentLoc)
                             }
+                            val viewModel: HomeViewModel = hiltViewModel()
+                            viewModel.getAllReports()
                             HomeScreen(
                                 currentPosition = LatLng(currentLoc.latitude, currentLoc.longitude),
                                 cameraState = cameraState,
@@ -214,7 +217,14 @@ fun SetNavigation(
             composable(
                 route = Route.HistoryScreen.route
             ) {
+                val viewModel: ProfileViewModel = hiltViewModel()
+                val user = viewModel.user.collectAsState()
+                user.value.id?.let {
+                    viewModel.onEvent(ProfileEvent.GetUserReport(it))
+                }
+                val userReports = viewModel.reportState.collectAsState()
                 HistoryScreen(
+                    userReports = userReports.value,
                     onBackClick = { navController.navigateUp() }
                 )
             }

@@ -33,6 +33,7 @@ fun HistoryCard(
     streetName: String,
     isLast: Boolean = false
 ) {
+    Spacer(modifier = Modifier.height(15.dp))
     Column(
         modifier = Modifier
             .fillMaxWidth()

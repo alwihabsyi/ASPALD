@@ -29,6 +29,11 @@ interface ApiServices {
         @Path("id") userId: String
     ): Response<ReportDetailResponse>
 
+    @GET("api/v1/reports/user/{id}")
+    suspend fun getUserReport(
+        @Path("id") userId: String
+    ): Response<GetReportResponse>
+
     @POST("api/v1/auth/login")
     suspend fun signIn(@Body request: SignInRequest) : Response<SignInResponse>
 

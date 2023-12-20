@@ -48,7 +48,7 @@ fun MapUi(
         )
         report.forEach {
             val reportMarker = LatLng(it.lat, it.lon)
-            val descriptionMaxLength = 10
+            val descriptionMaxLength = 30
             val ellipsis = "..."
             Marker(
                 state = MarkerState(position = reportMarker),
